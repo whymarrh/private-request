@@ -10,6 +10,7 @@
     "build": "tsc --project .",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "test": "tsc --project . && tests/unit/runner",
+    "logs:nginx": "docker logs --timestamps --follow \"${npm_package_name}-nginx\"",
     "start:nginx": "tests/nginx/start",
     "stop:nginx": "docker stop \"${npm_package_name}-nginx\"",
     "restart:nginx": "yarn stop:nginx && yarn start:nginx",
