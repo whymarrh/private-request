@@ -7,7 +7,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc --project .",
-    "test": "tsc --project . && node tests/unit/",
+    "test": "tsc --project . && tests/unit/runner",
     "start:nginx": "tests/nginx/start",
     "stop:nginx": "docker stop \"${npm_package_name}-nginx\"",
     "restart:nginx": "yarn stop:nginx && yarn start:nginx",

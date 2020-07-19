@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+set -o pipefail
+
+for f in tests/unit/*.js;
+do
+  paste -s -d '\0' /dev/fd/0 <<< "$(node "$f")";
+done;
