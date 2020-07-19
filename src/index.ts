@@ -38,7 +38,7 @@ export function parseContentRangeHeaderValue(value: string) {
 }
 
 export async function fetchInitialSegment(fetch: FetchImplementation, req: RequestInfo, rand: RandomNumberGenerator): Promise<RequestSegment> {
-  const segmentLength = 1024 + rand(0, 1024);
+  const segmentLength = Bytes.kibiBytes(1) + rand(0, Bytes.kibiBytes(1));
   const response = await fetch(req, {
     headers: {
       'Range': `bytes=0-${segmentLength - 1}`,
