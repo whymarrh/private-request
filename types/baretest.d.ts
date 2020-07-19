@@ -5,6 +5,8 @@ declare module 'baretest' {
     skip(fn: Function): void;
     // This isn't real, but the fn does ignore its args
     skip(name: string, fn: Function): void;
+    // This isn't real, but the fn does ignore its args
+    skip(name: string): void;
     before(fn: Function): void;
     after(fn: Function): void;
     only(name: string, fn: Function): void;
