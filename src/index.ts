@@ -1,3 +1,5 @@
+import Bytes from './bytes';
+
 interface RandomNumberGenerator {
   (min: number, max: number): number;
 }
@@ -48,6 +50,36 @@ export async function fetchInitialSegment(fetch: FetchImplementation, request: R
     size,
     response,
   };
+}
+
+/**
+ * Returns the appropriate segment size in bytes for the given content length
+ *
+ * See [Expanding Signal GIF search]{@link https://signal.org/blog/signal-and-giphy-update/}
+ *
+ * Instead of making a request for the full resource we can pick a segment size of N
+ * and issue requests for the resource in, N bytes at a time, overlapping when needed
+ * to simulate padding a resource and make it more difficult for any network observer
+ * to determine the original length of the resource.
+ *
+ * @param contentLength the actual length of the resource
+ */
+export function getSegmentSize(contentLength: number): number {
+  const availableSegmentSizes = [
+    Bytes.mebiBytes(  1),
+    Bytes.kibiBytes(500),
+    Bytes.kibiBytes(100),
+    Bytes.kibiBytes( 50),
+    Bytes.kibiBytes( 10),
+  ];
+
+  for (const segmentSize of availableSegmentSizes) {
+    if (contentLength >= segmentSize) {
+      return segmentSize;
+    }
+  }
+
+  return contentLength;
 }
 
 export default function (fetch: FetchImplementation): FetchImplementation {
