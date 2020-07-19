@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
-set -e
 set -u
 set -o pipefail
 
 for f in tests/unit/*.js;
 do
-  paste -s -d '\0' /dev/fd/0 <<< "$(node "$f")";
+  output=$(node "$f");
+  status="$?"
+  if [[ "$status" -eq 0 ]];
+  then
+    printf '%s' "${output}";
+  else
+    printf '%s\n' "${output}";
+    exit "$status"
+  fi
 done;
