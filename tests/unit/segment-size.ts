@@ -109,4 +109,46 @@ test('does segment a 101 byte request into two 100 byte requests', async () => {
   }]);
 });
 
+test('does segment a 2M request into two 1M requests', async () => {
+  const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), 0);
+  assert.equal(ranges.length, 2);
+  assert.deepEqual(ranges, [{
+    start: 0,
+    end: Bytes.mebiBytes(1) - 1,
+    redundant: 0,
+  }, {
+    start: Bytes.mebiBytes(1),
+    end: Bytes.mebiBytes(2) - 1,
+    redundant: 0,
+  }]);
+});
+
+test('does segment a 2M request into two 1M requests starting at 1K', async () => {
+  const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), Bytes.kibiBytes(1));
+  assert.equal(ranges.length, 2);
+  assert.deepEqual(ranges, [{
+    start: Bytes.kibiBytes(1),
+    end: Bytes.kibiBytes(1) + Bytes.mebiBytes(1) - 1,
+    redundant: 0,
+  }, {
+    start: Bytes.mebiBytes(1),
+    end: Bytes.mebiBytes(2) - 1,
+    redundant: Bytes.kibiBytes(1),
+  }]);
+});
+
+test('does segment a 2M request into two 1M requests starting at 1K - 1', async () => {
+  const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), Bytes.kibiBytes(1) - 1);
+  assert.equal(ranges.length, 2);
+  assert.deepEqual(ranges, [{
+    start: Bytes.kibiBytes(1) - 1,
+    end: Bytes.kibiBytes(1) + Bytes.mebiBytes(1) - 1 - 1,
+    redundant: 0,
+  }, {
+    start: Bytes.mebiBytes(1),
+    end: Bytes.mebiBytes(2) - 1,
+    redundant: Bytes.kibiBytes(1) - 1,
+  }]);
+});
+
 await run(test);

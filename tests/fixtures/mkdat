@@ -6,7 +6,7 @@ set -o pipefail
 
 find . -type f -depth 1 -name '*.dat' -delete
 
-for size in 32 64 1M;
+for size in 32 64 1M 2M;
 do
   printf '%s\n' "# Write ${size}.dat"
   docker run --rm --volume "$PWD:/app" --workdir '/app' ubuntu:20.04 \

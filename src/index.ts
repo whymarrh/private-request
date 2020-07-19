@@ -15,12 +15,15 @@ interface RequestRange {
 }
 
 interface RequestSegment {
-  size?: number;
-  redundant?: number;
   response: Response;
+  range: RequestRange;
 }
 
-function assert(condition: any, msg?: string): asserts condition {
+interface InitialRequestSegment extends RequestSegment{
+  totalSize: number;
+}
+
+function assert(condition: any, msg: string): asserts condition {
   if (!condition) {
     throw new Error(msg);
   }
@@ -50,19 +53,48 @@ export function parseContentRangeHeaderValue(value: string) {
   };
 }
 
-export async function fetchInitialSegment(fetch: FetchImplementation, req: RequestInfo, rand: RandomNumberGenerator): Promise<RequestSegment> {
+export async function fetchInitialSegment(fetch: FetchImplementation, req: RequestInfo, rand: RandomNumberGenerator): Promise<InitialRequestSegment> {
   const segmentLength = Bytes.kibiBytes(1) + rand(0, Bytes.kibiBytes(1));
   const response = await fetch(req, {
     headers: {
       'Range': `bytes=0-${segmentLength - 1}`,
     },
   });
-  const size = getContentLength(response);
+  switch (response.status) {
+    case 200: {
+      const size = getContentLength(response)!;
+      return {
+        totalSize: size,
+        response,
+        range: {
+          start: 0,
+          end: size - 1,
+          redundant: 0,
+        },
+      };
+    }
+    case 206: {
+      // In the event we can't see this header, we need to request the full resource
+      const contentRange = response.headers.get('Content-Range');
+      if (!contentRange) {
+        throw new Error('CORS prevents access to `Content-Range`')
+      }
 
-  return {
-    size,
-    response,
-  };
+      const { size, rangeStart, rangeEnd } = parseContentRangeHeaderValue(contentRange);
+
+      return {
+        totalSize: size,
+        response,
+        range: {
+          start: rangeStart,
+          end: rangeEnd,
+          redundant: 0,
+        },
+      };
+    }
+  }
+
+  throw new Error('Could not request initial segment');
 }
 
 /**
@@ -76,7 +108,7 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
   assertIsNonNullable(contentLength);
   assertIsNonNullable(segmentSize);
   assertIsNonNullable(segmentStart);
-  assert(segmentSize <= contentLength && segmentStart < contentLength);
+  assert(segmentSize <= contentLength && segmentStart < contentLength, 'segmentSize <= contentLength && segmentStart < contentLength');
 
   return Math.max(segmentSize - (contentLength - segmentStart), 0);
 }
@@ -115,7 +147,8 @@ export function getSegmentRanges(contentLength: number, segmentSize: number, sta
   assertIsNonNullable(contentLength);
   assertIsNonNullable(startIndex);
   assertIsNonNullable(segmentSize);
-  assert(startIndex < contentLength && segmentSize <= contentLength);
+  assert(startIndex < contentLength, 'startIndex >= contentLength');
+  assert(segmentSize <= contentLength, 'segmentSize > contentLength');
 
   let ranges: RequestRange[] = [];
   let segmentStart = startIndex;
@@ -136,16 +169,70 @@ export function getSegmentRanges(contentLength: number, segmentSize: number, sta
   return ranges;
 }
 
+export async function fetchSegments(fetch: FetchImplementation, req: RequestInfo, rand: RandomNumberGenerator): Promise<RequestSegment[]> {
+  const { response, totalSize, range } = await fetchInitialSegment(fetch, req, rand);
+  const segments: RequestSegment[] = [{ response, range, }];
+
+  if (range.end == (totalSize - 1)) {
+    return segments;
+  }
+
+  for (const segmentRange of getSegmentRanges(totalSize, getSegmentSize(totalSize), range.end + 1)) {
+    const response = await fetch(req, {
+      headers: {
+        'Range': `bytes=${segmentRange.start}-${segmentRange.end}`,
+      },
+    });
+    segments.push({
+      response,
+      range: segmentRange,
+    });
+  }
+
+  return segments;
+}
+
 export default function (fetch: FetchImplementation): FetchImplementation {
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
-    return fetch(input, init);
+    if (init && (init.method !== 'GET' || init.headers)) {
+      return fetch(input, init);
+    }
+
+    const segments = await fetchSegments(fetch, input, () => 0);
+    const initialSegment = segments[0] as RequestSegment;
+    let bytes: Uint8Array | undefined = undefined;
+    for (const segment of segments) {
+      const segmentBody = await segment.response.blob();
+      const segmentBytes = segment.range.redundant == 0
+        ? (await segmentBody.arrayBuffer())
+        : (await segmentBody.arrayBuffer()).slice(segment.range.redundant);
+
+      if (!bytes) {
+        bytes = new Uint8Array(segmentBytes);
+      } else {
+        bytes = concatBytes(bytes, new Uint8Array(segmentBytes))
+      }
+    }
+
+    assertIsNonNullable(bytes);
+    return new Response(bytes, copyResponseInit(initialSegment.response, bytes));
   };
 }
 
-// Based on https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift
-// ✓ Start by requesting a small initial segment (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L664-L688)
-// ✓ Pick Content-Length from the response (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L763-L769)
-// ✓ Choose segment size N (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L188-L208)
-// ✓ While there is data remaining, split into segments of size N (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L220-L250)
-// 5 Download each segment (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L690-L714)
-// 6 Once all the downloads are complete, merge them (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L558-L580)
+function copyResponseInit(init: Response, body: Uint8Array): ResponseInit {
+  const headers = new Headers(init.headers);
+  headers.set('Content-Length', body.byteLength.toString());
+
+  return {
+    status: 200,
+    statusText: 'OK',
+    headers,
+  };
+}
+
+function concatBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
+  const tmp = new Uint8Array(a.byteLength + b.byteLength);
+  tmp.set(new Uint8Array(a));
+  tmp.set(new Uint8Array(b), a.byteLength);
+  return tmp;
+}

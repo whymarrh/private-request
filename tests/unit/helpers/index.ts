@@ -1,5 +1,6 @@
 import path from 'path';
 import type { Test } from 'baretest';
+import fetch from 'node-fetch';
 
 export function filename(s: string) {
   const { name } = path.parse(s);
@@ -10,4 +11,13 @@ export async function run(test: Test) {
   if (!await test.run()) {
     process.exit(1);
   }
+}
+
+export function setupGlobals(test: Test) {
+  test.before(() => {
+    // @ts-ignore
+    const { Headers, Response } = fetch;
+    globalThis.Headers ??= Headers;
+    globalThis.Response ??= Response;
+  });
 }
