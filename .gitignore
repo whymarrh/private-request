@@ -1,6 +1,8 @@
 *.tsbuildinfo
-*.d.ts
 *.js
 node_modules
 
 yarn-error.log
+
+*.d.ts
+!/types/*.d.ts
