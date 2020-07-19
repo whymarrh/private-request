@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import { parseContentRangeHeaderValue } from '../../src';
-import { filename } from './helpers';
+import { filename, run } from './helpers';
 
 const test = baretest(filename(__filename));
 
@@ -61,4 +61,4 @@ test('handles malformed Content-Range header value `bytes a-b/c`', async () => {
 
 // Run all tests
 
-(async () => await test.run())();
+(async () => await run(test))();

@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
 import { fetchInitialSegment } from '../../src';
-import { filename } from './helpers';
+import { filename, run } from './helpers';
 
 const test = baretest(filename(__filename));
 
@@ -20,4 +20,4 @@ test('does fetch the full resource when range requests are NOT allowed', async (
 
 // Run all tests
 
-(async () => await test.run())();
+(async () => await run(test))();

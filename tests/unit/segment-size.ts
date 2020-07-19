@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import { getSegmentSize } from '../../src';
 import Bytes from '../../src/bytes';
-import { filename } from './helpers';
+import { filename, run } from './helpers';
 
 const test = baretest(filename(__filename));
 const tests = [
@@ -25,4 +25,4 @@ tests.forEach(([contentLength, expectedSegmentSize]) => {
 
 // Run all tests
 
-(async () => await test.run())();
+(async () => await run(test))();

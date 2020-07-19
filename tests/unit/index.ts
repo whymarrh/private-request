@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
 import fetchPrivately from '../../src';
-import { filename } from './helpers';
+import { filename, run } from './helpers';
 
 const test = baretest(filename(__filename));
 
@@ -59,4 +59,4 @@ test('does fetch too much of a resource using `Range` header', async () => {
 
 // Run all tests
 
-(async () => await test.run())();
+(async () => await run(test))();
