@@ -1,0 +1,26 @@
+{
+  "name": "private-fetch",
+  "description": "A fetch wrapper that hampers traffic analysis",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc --project .",
+    "test": "tsc --project . && node tests/unit/",
+    "start:nginx": "tests/nginx/start",
+    "stop:nginx": "docker stop \"${npm_package_name}-nginx\"",
+    "restart:nginx": "yarn stop:nginx && yarn start:nginx",
+    "curl:headers": "curl --silent --dump-header /dev/fd/1 --output /dev/null"
+  },
+  "dependencies": {
+    "pure-random-number": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.50",
+    "baretest": "^2.0.0",
+    "nock": "^13.0.2",
+    "node-fetch": "^2.6.0",
+    "typescript": "^4.0.0-beta"
+  }
+}
