@@ -3,7 +3,9 @@
 set -u
 set -o pipefail
 
-for f in tests/unit/*.js;
+readonly all_files=$( find tests/unit -type f -name '*.js' -depth 1 )
+
+for f in ${1:-$all_files};
 do
   output=$(node --harmony-top-level-await --experimental-modules --es-module-specifier-resolution=node "$f");
   status="$?"
