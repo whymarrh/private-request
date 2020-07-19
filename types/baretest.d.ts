@@ -1,5 +1,5 @@
 declare module 'baretest' {
-  interface Baretest {
+  export interface Test {
     (name: string, fn: Function): void;
     run(): Promise<boolean>;
     skip(fn: Function): void;
@@ -8,5 +8,9 @@ declare module 'baretest' {
     only(name: string, fn: Function): void;
   }
 
-  export default function (headline: string): Baretest;
+  export interface Baretest {
+    (headline: string): Test;
+  }
+
+  export default function (headline: string): Test;
 }
