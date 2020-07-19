@@ -8,9 +8,22 @@ interface FetchImplementation {
   (input: RequestInfo, init?: RequestInit): Promise<Response>;
 }
 
+interface RequestRange {
+  start: number;
+  end: number;
+  redundant: number;
+}
+
 interface RequestSegment {
   size?: number;
+  redundant?: number;
   response: Response;
+}
+
+function assert(condition: any, msg?: string): asserts condition {
+  if (!condition) {
+    throw new Error(msg);
+  }
 }
 
 function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
@@ -53,6 +66,22 @@ export async function fetchInitialSegment(fetch: FetchImplementation, req: Reque
 }
 
 /**
+ * Returns the redundant/excess bytes for a request of size {@code segmentSize} starting at {@segmentStart}
+ *
+ * @param contentLength the actual length of the resource
+ * @param segmentSize the size of the segments used to download the resource
+ * @param segmentStart the index of the current segment
+ */
+export function getRedundantByteCount(contentLength: number, segmentSize: number, segmentStart: number) {
+  assertIsNonNullable(contentLength);
+  assertIsNonNullable(segmentSize);
+  assertIsNonNullable(segmentStart);
+  assert(segmentSize <= contentLength && segmentStart < contentLength);
+
+  return Math.max(segmentSize - (contentLength - segmentStart), 0);
+}
+
+/**
  * Returns the appropriate segment size in bytes for the given content length
  *
  * See [Expanding Signal GIF search]{@link https://signal.org/blog/signal-and-giphy-update/}
@@ -82,6 +111,31 @@ export function getSegmentSize(contentLength: number): number {
   return contentLength;
 }
 
+export function getSegmentRanges(contentLength: number, segmentSize: number, startIndex: number): RequestRange[] {
+  assertIsNonNullable(contentLength);
+  assertIsNonNullable(startIndex);
+  assertIsNonNullable(segmentSize);
+  assert(startIndex < contentLength && segmentSize <= contentLength);
+
+  let ranges: RequestRange[] = [];
+  let segmentStart = startIndex;
+  while (segmentStart < contentLength) {
+    const redundant = getRedundantByteCount(contentLength, segmentSize, segmentStart);
+    const start = segmentStart - redundant;
+    const end = start + segmentSize - 1;
+
+    ranges.push({
+      start,
+      end,
+      redundant,
+    });
+
+    segmentStart = end + 1;
+  }
+
+  return ranges;
+}
+
 export default function (fetch: FetchImplementation): FetchImplementation {
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
     return fetch(input, init);
@@ -92,6 +146,6 @@ export default function (fetch: FetchImplementation): FetchImplementation {
 // ✓ Start by requesting a small initial segment (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L664-L688)
 // ✓ Pick Content-Length from the response (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L763-L769)
 // ✓ Choose segment size N (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L188-L208)
-// 4 While there is data remaining, split into segments of size N (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L220-L250)
+// ✓ While there is data remaining, split into segments of size N (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L220-L250)
 // 5 Download each segment (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L690-L714)
 // 6 Once all the downloads are complete, merge them (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L558-L580)

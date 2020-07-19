@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
-import { getSegmentSize } from '../../src';
+import { getRedundantByteCount, getSegmentRanges, getSegmentSize } from '../../src';
 import Bytes from '../../src/bytes';
 import { filename, run } from './helpers';
 
@@ -21,6 +21,92 @@ tests.forEach(([contentLength, expectedSegmentSize]) => {
   test(`getSegmentSize(${contentLength}) is ${expectedSegmentSize}`, async () => {
     assert.equal(getSegmentSize(contentLength), expectedSegmentSize);
   });
+});
+
+test('a 13 byte segment size for a 13 byte resource does NOT have redundant bytes', async () => {
+  assert.equal(getRedundantByteCount(13, 13, 0), 0);
+});
+
+test('a segment size larger than the content throws', async () => {
+  assert.throws(() => getRedundantByteCount(13, 14, 0));
+});
+
+test('a segment start index larger than the content throws', async () => {
+  assert.throws(() => getRedundantByteCount(13, 11, 14));
+});
+
+test('a 6 byte segment size for a 13 byte resource does have 5 redundant bytes', async () => {
+  // [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12]
+  //  ^--------------------^
+  //         Request 1
+  //                          ^--------------------^
+  //                                 Request 2
+  //                              ^--------------------^
+  //                                     Request 3
+  assert.equal(getRedundantByteCount(13, 6, 12), 5);
+});
+
+test('does segment a 13 byte request into one 13 byte request', async () => {
+  const ranges = getSegmentRanges(13, 13, 0);
+  assert.equal(ranges.length, 1);
+  assert.deepEqual(ranges, [{
+    start: 0,
+    end: 12,
+    redundant: 0,
+  }]);
+});
+
+test('does segment a 13 byte request into three 6 byte requests', async () => {
+  // [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12]
+  //  ^--------------------^
+  //         Request 1
+  //                          ^--------------------^
+  //                                 Request 2
+  //                              ^--------------------^
+  //                                     Request 3
+  const ranges = getSegmentRanges(13, 6, 0);
+  assert.equal(ranges.length, 3);
+  assert.deepEqual(ranges, [{
+    start: 0,
+    end: 5,
+    redundant: 0,
+  }, {
+    start: 6,
+    end: 11,
+    redundant: 0,
+  }, {
+    start: 7,
+    end: 12,
+    redundant: 5,
+  }]);
+});
+
+test('does segment a 200 byte request into two 100 byte requests', async () => {
+  const ranges = getSegmentRanges(200, 100, 0);
+  assert.equal(ranges.length, 2);
+  assert.deepEqual(ranges, [{
+    start: 0,
+    end: 99,
+    redundant: 0,
+  }, {
+    start: 100,
+    end: 199,
+    redundant: 0,
+  }]);
+});
+
+test('does segment a 101 byte request into two 100 byte requests', async () => {
+  const ranges = getSegmentRanges(101, 100, 0);
+  assert.equal(ranges.length, 2);
+  assert.deepEqual(ranges, [{
+    start: 0,
+    end: 99,
+    redundant: 0,
+  }, {
+    start: 1,
+    end: 100,
+    redundant: 99,
+  }]);
 });
 
 await run(test);
