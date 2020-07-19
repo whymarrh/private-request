@@ -86,7 +86,7 @@ export default function (fetch: FetchImplementation): FetchImplementation {
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
     return fetch(input, init);
   };
-};
+}
 
 // Based on https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift
 // 1. Start by requesting a small initial segment (https://github.com/signalapp/Signal-iOS/blob/3.13.2.6/SignalServiceKit/src/Network/ProxiedContentDownloader.swift#L664-L688)
