@@ -2,8 +2,9 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
 import fetchPrivately from '../../src';
+import { filename } from './helpers';
 
-const test = baretest('fetchPrivately');
+const test = baretest(filename(__filename));
 
 test('does fetch a resource that has an exposed `Accept-Ranges: bytes` header', async () => {
   const f = fetchPrivately(fetch);

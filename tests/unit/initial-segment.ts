@@ -2,8 +2,9 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
 import { fetchInitialSegment } from '../../src';
+import { filename } from './helpers';
 
-const test = baretest('fetchInitialSegment');
+const test = baretest(filename(__filename));
 
 const getRandomNumber = (_: number, __: number) => 42;
 

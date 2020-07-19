@@ -2,8 +2,9 @@ import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import { getSegmentSize } from '../../src';
 import Bytes from '../../src/bytes';
+import { filename } from './helpers';
 
-const test = baretest('getSegmentSize');
+const test = baretest(filename(__filename));
 const tests = [
   [Bytes.kibiBytes(1),   Bytes.kibiBytes(1)  ],
   [Bytes.kibiBytes(128), Bytes.kibiBytes(100)],

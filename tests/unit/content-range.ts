@@ -1,8 +1,9 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import { parseContentRangeHeaderValue } from '../../src';
+import { filename } from './helpers';
 
-const test = baretest('parseContentRangeHeader');
+const test = baretest(filename(__filename));
 
 test('handles empty string value', async () => {
   const res = parseContentRangeHeaderValue('');
