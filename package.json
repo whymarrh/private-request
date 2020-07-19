@@ -8,6 +8,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc --project .",
+    "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "test": "tsc --project . && tests/unit/runner",
     "start:nginx": "tests/nginx/start",
     "stop:nginx": "docker stop \"${npm_package_name}-nginx\"",
