@@ -3,7 +3,7 @@
     /* Basic Options */
     "incremental": true,
     "target": "ES2017",
-    "module": "commonjs",
+    "module": "esnext",
     "declaration": true,
 
     /* Strict Type-Checking Options */
@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Module Resolution Options */
+    "moduleResolution": "Node",
     "esModuleInterop": true,
 
     "forceConsistentCasingInFileNames": true

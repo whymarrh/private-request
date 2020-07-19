@@ -5,7 +5,7 @@ set -o pipefail
 
 for f in tests/unit/*.js;
 do
-  output=$(node "$f");
+  output=$(node --harmony-top-level-await --experimental-modules --es-module-specifier-resolution=node "$f");
   status="$?"
   if [[ "$status" -eq 0 ]];
   then

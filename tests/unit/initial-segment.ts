@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import { fetchInitialSegment } from '../../src';
 import { filename, run } from './helpers';
 
-const test = baretest(filename(__filename));
+const test = baretest(filename(import.meta.url));
 
 const getRandomNumber = (_: number, __: number) => 42;
 
@@ -18,6 +18,4 @@ test('does fetch the full resource when range requests are NOT allowed', async (
   assert.equal(res.size, 1024 * 1024);
 });
 
-// Run all tests
-
-(async () => await run(test))();
+await run(test);

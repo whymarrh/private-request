@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import fetchPrivately from '../../src';
 import { filename, run } from './helpers';
 
-const test = baretest(filename(__filename));
+const test = baretest(filename(import.meta.url));
 
 test('does fetch a resource that has an exposed `Accept-Ranges: bytes` header', async () => {
   const f = fetchPrivately(fetch);
@@ -57,6 +57,4 @@ test('does fetch too much of a resource using `Range` header', async () => {
   assert.equal(r.headers.get('Content-Range'), 'bytes 0-31/32');
 });
 
-// Run all tests
-
-(async () => await run(test))();
+await run(test);

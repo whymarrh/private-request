@@ -4,7 +4,7 @@ import { getSegmentSize } from '../../src';
 import Bytes from '../../src/bytes';
 import { filename, run } from './helpers';
 
-const test = baretest(filename(__filename));
+const test = baretest(filename(import.meta.url));
 const tests = [
   [Bytes.kibiBytes(1),   Bytes.kibiBytes(1)  ],
   [Bytes.kibiBytes(128), Bytes.kibiBytes(100)],
@@ -23,6 +23,4 @@ tests.forEach(([contentLength, expectedSegmentSize]) => {
   });
 });
 
-// Run all tests
-
-(async () => await run(test))();
+await run(test);
