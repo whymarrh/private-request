@@ -1,7 +1,8 @@
+import randomNumber from 'pure-random-number';
 import Bytes from './bytes';
 
 interface RandomNumberGenerator {
-  (min: number, max: number): number;
+  (min: number, max: number): Promise<number>;
 }
 
 interface FetchImplementation {
@@ -54,7 +55,7 @@ export function parseContentRangeHeaderValue(value: string) {
 }
 
 export async function fetchInitialSegment(fetch: FetchImplementation, req: RequestInfo, rand: RandomNumberGenerator): Promise<InitialRequestSegment> {
-  const segmentLength = Bytes.kibiBytes(1) + rand(0, Bytes.kibiBytes(1));
+  const segmentLength = Bytes.kibiBytes(1) + await rand(0, Bytes.kibiBytes(1));
   const response = await fetch(req, {
     headers: {
       'Range': `bytes=0-${segmentLength - 1}`,
@@ -193,13 +194,13 @@ export async function fetchSegments(fetch: FetchImplementation, req: RequestInfo
   return segments;
 }
 
-export default function (fetch: FetchImplementation): FetchImplementation {
+export default function (fetch: FetchImplementation, rand: RandomNumberGenerator = randomNumber): FetchImplementation {
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
     if (init && (init.method !== 'GET' || init.headers)) {
       return fetch(input, init);
     }
 
-    const segments = await fetchSegments(fetch, input, () => 0);
+    const segments = await fetchSegments(fetch, input, rand);
     const initialSegment = segments[0] as RequestSegment;
     let bytes: Uint8Array | undefined = undefined;
     for (const segment of segments) {

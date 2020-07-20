@@ -7,7 +7,7 @@ import { filename, run } from './helpers';
 
 const test = baretest(filename(import.meta.url));
 
-const getRandomNumber = (_: number, __: number) => 0;
+const getRandomNumber = async (_: number, __: number) => 0;
 
 test('does fetch all segments for a resource when range requests are allowed and CORS allows `Content-Range`', async () => {
   const segments = await fetchSegments(fetch, 'http://localhost:8000/2M.cors.dat', getRandomNumber);
