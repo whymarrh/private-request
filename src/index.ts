@@ -108,7 +108,8 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
   assertIsNonNullable(contentLength);
   assertIsNonNullable(segmentSize);
   assertIsNonNullable(segmentStart);
-  assert(segmentSize <= contentLength && segmentStart < contentLength, 'segmentSize <= contentLength && segmentStart < contentLength');
+  assert(segmentSize <= contentLength, 'segmentSize must be less than or equal to contentLength');
+  assert(segmentStart < contentLength, 'segmentStart must be less than contentLength');
 
   return Math.max(segmentSize - (contentLength - segmentStart), 0);
 }
@@ -147,8 +148,8 @@ export function getSegmentRanges(contentLength: number, segmentSize: number, sta
   assertIsNonNullable(contentLength);
   assertIsNonNullable(startIndex);
   assertIsNonNullable(segmentSize);
-  assert(startIndex < contentLength, 'startIndex >= contentLength');
-  assert(segmentSize <= contentLength, 'segmentSize > contentLength');
+  assert(startIndex < contentLength, 'startIndex must be less than contentLength');
+  assert(segmentSize <= contentLength, 'segmentSize must be less than or equal to contentLength');
 
   let ranges: RequestRange[] = [];
   let segmentStart = startIndex;
