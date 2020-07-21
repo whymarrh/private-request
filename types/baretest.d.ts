@@ -1,15 +1,15 @@
 declare module 'baretest' {
   export interface Test {
-    (name: string, fn: Function): void;
+    (name: string, fn: () => Promise<void>): void;
     run(): Promise<boolean>;
-    skip(fn: Function): void;
+    skip(fn: () => Promise<void>): void;
     // This isn't real, but the fn does ignore its args
-    skip(name: string, fn: Function): void;
+    skip(name: string, fn: () => Promise<void>): void;
     // This isn't real, but the fn does ignore its args
     skip(name: string): void;
-    before(fn: Function): void;
-    after(fn: Function): void;
-    only(name: string, fn: Function): void;
+    before(fn: () => Promise<void>): void;
+    after(fn: () => Promise<void>): void;
+    only(name: string, fn: () => Promise<void>): void;
   }
 
   export interface Baretest {

@@ -14,7 +14,7 @@ export async function run(test: Test) {
 }
 
 export function setupGlobals(test: Test) {
-  test.before(() => {
+  test.before(async () => {
     // @ts-ignore
     const { Headers, Response } = fetch;
     globalThis.Headers ??= Headers;
