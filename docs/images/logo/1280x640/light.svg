@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280px" height="640px" viewBox="0 0 1280 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Private Request Logo / 1280x640 / light</title>
+    <g id="Private-Request-Logo-/-1280x640-/-light" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" x="0" y="0" width="1280" height="640"></rect>
+        <path d="M590.325128,264 L593.653333,266.490656 L588.410256,274.051045 L622,274.051045 L622,278.31222 L588.661538,278.31222 L593.653333,285.509344 L590.325128,288 L582,276.001598 L590.325128,264 Z M666.325128,280 L669.653333,282.490656 L664.410256,290.051045 L698,290.051045 L698,294.31222 L664.661538,294.31222 L669.653333,301.509344 L666.325128,304 L658,292.001598 L666.325128,280 Z M590.325128,296 L593.653333,298.490656 L588.410256,306.051045 L622,306.051045 L622,310.31222 L588.661538,310.31222 L593.653333,317.509344 L590.325128,320 L582,308.001598 L590.325128,296 Z M642,320 L638,320 L638,264 L642,264 L642,320 Z" id="Shape" fill="#111111" fill-rule="nonzero" transform="translate(640.000000, 292.000000) scale(-1, 1) translate(-640.000000, -292.000000) "></path>
+        <text id="Private-Request" font-family="Inter-ExtraBold, Inter" font-size="50" font-weight="600" fill="#111111">
+            <tspan x="444.074929" y="376">Private Request</tspan>
+        </text>
+    </g>
+</svg>
