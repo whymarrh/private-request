@@ -3,7 +3,7 @@
 set -u
 set -o pipefail
 
-readonly all_files=$( find tests/unit -type f -name '*.js' -depth 1 )
+readonly all_files=$( find tests/unit -maxdepth 1 -type f -name '*.js' )
 
 for f in ${1:-$all_files}
 do
