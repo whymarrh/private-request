@@ -1,4 +1,3 @@
-import randomNumber from 'pure-random-number';
 import Bytes from './bytes';
 
 interface RandomNumberGenerator {
@@ -7,6 +6,11 @@ interface RandomNumberGenerator {
 
 interface FetchImplementation {
   (input: RequestInfo, init?: RequestInit): Promise<Response>;
+}
+
+interface PrivateRequestOptions {
+  fetch?: FetchImplementation;
+  rng?: RandomNumberGenerator;
 }
 
 interface RequestRange {
@@ -194,13 +198,19 @@ export async function fetchSegments(fetch: FetchImplementation, req: RequestInfo
   return segments;
 }
 
-export default function (fetch: FetchImplementation, rand: RandomNumberGenerator = randomNumber): FetchImplementation {
+const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
+
+export default function (options: PrivateRequestOptions = {}): FetchImplementation {
+  const {
+    fetch = window?.fetch,
+    rng = nullRandomNumberGenerator,
+  } = options;
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
     if (init && (init.method !== 'GET' || init.headers)) {
       return fetch(input, init);
     }
 
-    const segments = await fetchSegments(fetch, input, rand);
+    const segments = await fetchSegments(fetch, input, rng);
     const initialSegment = segments[0] as RequestSegment;
     let bytes: Uint8Array | undefined = undefined;
     for (const segment of segments) {

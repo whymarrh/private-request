@@ -24,11 +24,6 @@ node-fetch@^2.6.0:
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
 
-pure-random-number@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/pure-random-number/-/pure-random-number-2.1.0.tgz#8ce268f4d4cd2109d85a0bc24fd4c58916be8280"
-  integrity sha512-XTJIYJ0dwpMk6yf+Uzho9qadDp6Y1V+5RS3Dv9r/0WLr8/KZjDxRrMopvxYxsSHNGlULlfE93bqGOX1PiRFzOw==
-
 typescript@^4.0.0-beta:
   version "4.0.0-beta"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-beta.tgz#a6a65e430562131de69496a3ef5484346bc0cdd2"

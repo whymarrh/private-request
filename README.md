@@ -5,6 +5,8 @@ A fetch wrapper that hampers traffic analysis, based on Signal's [_Expanding Sig
   [signal-and-giphy]:https://signal.org/blog/signal-and-giphy-update/
   [signal-and-giphy-wayback]:https://web.archive.org/web/20200524203345/https://signal.org/blog/signal-and-giphy-update/
 
+**WARNING:** this package requires a random number generator that will produce uniform numbers, preferably one which is cryptographically sound. One option is [`pure-random-number`][pure-random-number], which is available for both browsers and Node.
+
 ### Tests
 
 To run the test suite locally:
@@ -16,3 +18,5 @@ $ yarn test
 ```
 
 This repository is available under the ISC License. See [`LICENSE.md`](./LICENSE.md).
+
+  [pure-random-number]:https://www.npmjs.com/package/pure-random-number

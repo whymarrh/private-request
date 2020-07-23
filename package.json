@@ -16,9 +16,7 @@
     "restart:nginx": "yarn stop:nginx && yarn start:nginx",
     "curl:headers": "curl --silent --dump-header /dev/fd/1 --output /dev/null"
   },
-  "dependencies": {
-    "pure-random-number": "^2.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^12.12.50",
     "baretest": "^2.0.0",
