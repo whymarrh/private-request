@@ -1,5 +1,5 @@
 {
-  "name": "private-fetch",
+  "name": "private-request",
   "description": "A fetch wrapper that hampers traffic analysis",
   "version": "1.0.0",
   "private": true,
