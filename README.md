@@ -13,6 +13,7 @@ To run the test suite locally:
 
 ```bash
 $ yarn
+$ ( cd tests/fixtures/ && ./mkdat )
 $ yarn start:nginx
 $ yarn test
 ```
