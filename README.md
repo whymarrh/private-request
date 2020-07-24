@@ -23,3 +23,30 @@ To run the e2e tests, visit `localhost:8001` in a browser.
 This repository is available under the ISC License. See [`LICENSE.md`](./LICENSE.md).
 
   [pure-random-number]:https://www.npmjs.com/package/pure-random-number
+
+### On CORS
+
+The ability to perform range requests for a given resource requires the correct CORS headers.
+
+Namely:
+
+- [`Access-Control-Allow-Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) must include the requesting origin
+- [`Access-Control-Expose-Headers`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers) must include [`Content-Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range)
+
+Remember that the following environments do not enforce CORS:
+
+- [React Native][react-native-networking]
+
+    > The security model for XMLHttpRequest is different than on web as there is no concept of CORS in native apps.
+
+- Web extensions
+
+    > [CORS is not enforced] in the background and popup pages if the extension has those domains in their manifest permissions
+
+    - Firefox
+    - [Safari][web-extensions-safari]
+    - [Chrome][web-extensions-chrome]
+
+  [react-native-networking]:https://reactnative.dev/docs/network
+  [web-extensions-safari]:https://developer.apple.com/forums/thread/654839
+  [web-extensions-chrome]:https://developer.chrome.com/extensions/xhr
