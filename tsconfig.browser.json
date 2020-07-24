@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+
+    "sourceMap": true,
+    "target": "ES2015",
+    "module": "System",
+
+    "outDir": "tests/e2e/scripts"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
