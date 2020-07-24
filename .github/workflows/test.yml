@@ -1,0 +1,20 @@
+name: Tests
+on: [ push ]
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        run: |
+          yarn
+          ( cd tests/fixtures/ && ./mkdat )
+          yarn start:nginx
+          yarn test
+          yarn stop:nginx
