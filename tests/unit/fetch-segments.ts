@@ -3,14 +3,17 @@ import baretest from 'baretest';
 import fetch from 'node-fetch';
 import { fetchSegments } from '../../src';
 import Bytes from '../../src/bytes';
-import { filename, run } from './helpers';
+import { assertType, filename, run } from './helpers';
 
 const test = baretest(filename(import.meta.url));
 
 const getRandomNumber = async (_: number, __: number) => 0;
 
 test('does fetch all segments for a resource when range requests are allowed and CORS allows `Content-Range`', async () => {
-  const segments = await fetchSegments(fetch, 'http://localhost:8000/2M.cors.dat', getRandomNumber);
+  const res = await fetchSegments(fetch, 'http://localhost:8000/2M.cors.dat', getRandomNumber);
+  assertType(res.type === 'usable', 'response should be usable');
+  const { value: segments } = res;
+
   assert.equal(segments.length, 3);
   assert.deepEqual(segments.map(s => s.range), [{
     start: 0,
@@ -28,7 +31,10 @@ test('does fetch all segments for a resource when range requests are allowed and
 });
 
 test('does fetch all segments for a 32 byte resource when range requests are allowed and CORS allows `Content-Range`', async () => {
-  const segments = await fetchSegments(fetch, 'http://localhost:8000/32.cors.dat', getRandomNumber);
+  const res = await fetchSegments(fetch, 'http://localhost:8000/32.cors.dat', getRandomNumber);
+  assertType(res.type === 'usable', 'response should be usable');
+  const { value: segments } = res;
+
   assert.equal(segments.length, 1);
   assert.deepEqual(segments.map(s => s.range), [{
     start: 0,

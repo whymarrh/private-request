@@ -1,6 +1,11 @@
+import { strict as assert } from 'assert';
 import path from 'path';
 import type { Test } from 'baretest';
 import fetch from 'node-fetch';
+
+export function allLowerCase(strings: string[] = []) {
+  return strings.map((s) => s.toLowerCase());
+}
 
 export function filename(s: string) {
   const { name } = path.parse(s);
@@ -20,4 +25,8 @@ export function setupGlobals(test: Test) {
     globalThis.Headers ??= Headers;
     globalThis.Response ??= Response;
   });
+}
+
+export function assertType(condition: boolean, message?: string | Error): asserts condition {
+  assert.equal(condition, true, message);
 }

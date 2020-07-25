@@ -13,5 +13,6 @@ do
     dd if=/dev/zero "of=${size}.dat" "bs=${size}" count=1;
   cp "${size}.dat" "${size}.cors.dat"
   cp "${size}.dat" "${size}.cors.nobytes.dat"
+  cp "${size}.dat" "${size}.cors.noexpose.dat"
   cp "${size}.dat" "${size}.nobytes.dat"
 done;
