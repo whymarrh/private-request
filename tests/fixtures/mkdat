@@ -4,6 +4,12 @@ set -e
 set -u
 set -o pipefail
 
+wordlist_image=$(docker build --quiet - <<EOF
+FROM ubuntu:20.04
+RUN apt-get update && apt-get -qqq install wcanadian-huge
+EOF
+)
+
 find . -maxdepth 1 -type f -name '*.dat' -delete
 
 for size in 32 64 1M 2M;
@@ -15,4 +21,7 @@ do
   cp "${size}.dat" "${size}.cors.nobytes.dat"
   cp "${size}.dat" "${size}.cors.noexpose.dat"
   cp "${size}.dat" "${size}.nobytes.dat"
+
+  docker run --rm --volume "$PWD:/app" --workdir '/app' "$wordlist_image" \
+    cp /usr/share/dict/canadian-english-huge words.dat
 done;

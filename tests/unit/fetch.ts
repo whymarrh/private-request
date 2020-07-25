@@ -3,7 +3,7 @@ import baretest from 'baretest';
 import fetch from 'node-fetch';
 import fetchPrivately from '../../src';
 import Bytes from '../../src/bytes';
-import { filename, run, setupGlobals } from './helpers';
+import { filename, run, setupGlobals, sha256 } from './helpers';
 
 const test = baretest(filename(import.meta.url));
 
@@ -82,6 +82,16 @@ test('fetches a full 2M resource', async () => {
   assert.equal(r.status, 200);
   assert.equal(r.headers.get('Content-Length'), Bytes.mebiBytes(2).toString(10));
   assert.equal((await r.arrayBuffer()).byteLength, Bytes.mebiBytes(2));
+});
+
+test('fetches words.dat with the correct hash', async () => {
+  const f = fetchPrivately({ fetch });
+  const r = await f('http://localhost:8000/words.dat');
+  const data = await r.arrayBuffer();
+
+  assert.equal(r.status, 200);
+  assert.equal(r.headers.get('Content-Length'), '3539061');
+  assert.equal(sha256(data), 'dcdd7653dc099fe38a8e1368c849829399386c3c0f894cea0a411de65678cd7e');
 });
 
 test('fails to fetch a non-existent resource', async () => {

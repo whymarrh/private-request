@@ -1,4 +1,5 @@
 import { strict as assert } from 'assert';
+import crypto from 'crypto';
 import path from 'path';
 import type { Test } from 'baretest';
 import fetch from 'node-fetch';
@@ -29,4 +30,8 @@ export function setupGlobals(test: Test) {
 
 export function assertType(condition: boolean, message?: string | Error): asserts condition {
   assert.equal(condition, true, message);
+}
+
+export function sha256(data: ArrayBuffer): string {
+  return crypto.createHash('sha256').update(new Uint8Array(data)).digest('hex');
 }
