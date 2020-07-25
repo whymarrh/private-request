@@ -118,11 +118,11 @@ export async function fetchInitialSegment(
 }
 
 /**
- * Returns the redundant/excess bytes for a request of size {@code segmentSize} starting at {@segmentStart}
+ * Returns the redundant/excess bytes for a request of size `segmentSize` starting at `segmentStart`.
  *
- * @param contentLength the actual length of the resource
- * @param segmentSize the size of the segments used to download the resource
- * @param segmentStart the index of the current segment
+ * @param contentLength - the actual length of the resource
+ * @param segmentSize - the size of the segments used to download the resource
+ * @param segmentStart - the index of the current segment
  */
 export function getRedundantByteCount(contentLength: number, segmentSize: number, segmentStart: number) {
   assertIsNonNullable(contentLength);
@@ -135,7 +135,7 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
 }
 
 /**
- * Returns the appropriate segment size in bytes for the given content length
+ * Returns the appropriate segment size in bytes for the given content length.
  *
  * See [Expanding Signal GIF search]{@link https://signal.org/blog/signal-and-giphy-update/}
  *
@@ -144,7 +144,7 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
  * to simulate padding a resource and make it more difficult for any network observer
  * to determine the original length of the resource.
  *
- * @param contentLength the actual length of the resource
+ * @param contentLength - the actual length of the resource
  */
 export function getSegmentSize(contentLength: number): number {
   const availableSegmentSizes = [
