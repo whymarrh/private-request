@@ -6,6 +6,7 @@ import type {
   Unusable,
   UsableOrUnusable,
   PossibleResponseSegment,
+  ByteContentRange,
 } from './response-types';
 
 interface RandomNumberGenerator {
@@ -21,6 +22,10 @@ interface PrivateRequestOptions {
   rng?: RandomNumberGenerator;
 }
 
+function isDefined<T>(val: T): val is NonNullable<T> {
+  return val !== undefined && val !== null;
+}
+
 function assert(condition: any, msg: string): asserts condition {
   if (!condition) {
     throw new Error(msg);
@@ -33,16 +38,35 @@ function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
   }
 }
 
-export function parseContentRangeHeaderValue(value: string) {
+export function parseByteContentRange(value: string): ByteContentRange | undefined {
   assertIsNonNullable(value);
 
-  const regExp =/^bytes (\d+)-(\d+)\/(\d+)$/u;
+  const regExp =/^bytes (\d+)-(\d+)\/((?:\d+)|(?:[*]))$/u;
   const [, ...parts] = value.match(regExp) ?? [];
-  const [rangeStart, rangeEnd, size] = parts.map((n) => parseInt(n, 10));
+  const [first, last, completeSize] = parts.map((n) => {
+    const parsed = parseInt(n, 10);
+    return Number.isFinite(parsed)
+      ? parsed
+      : undefined;
+  });
+
+  if (!isDefined(first) || !isDefined(last)) {
+    return undefined;
+  }
+
+  // A Content-Range field value is invalid if it contains a
+  // byte-range-resp that has a last-byte-pos value less than its
+  // first-byte-pos value, or a complete-length value less than or equal
+  // to its last-byte-pos value.
+  // — https://tools.ietf.org/html/rfc7233#section-4.2
+  if (last < first || (isDefined(completeSize) && completeSize <= last)) {
+    return undefined;
+  }
+
   return {
-    size,
-    rangeStart,
-    rangeEnd,
+    first,
+    last,
+    completeSize,
   };
 }
 
@@ -101,16 +125,26 @@ export async function fetchInitialSegment(
     return fetchUnusableResource(fetch, req);
   }
 
-  const { size, rangeStart, rangeEnd } = parseContentRangeHeaderValue(contentRange);
+  const byteContentRange = parseByteContentRange(contentRange);
+
+  if (!isDefined(byteContentRange)) {
+    return fetchUnusableResource(fetch, req);
+  }
+
+  const { first, last, completeSize } = byteContentRange;
+
+  if (!isDefined(completeSize)) {
+    return fetchUnusableResource(fetch, req);
+  }
 
   return {
     type: 'usable',
     value: {
       response,
-      totalSize: size,
+      totalSize: completeSize,
       range: {
-        start: rangeStart,
-        end: rangeEnd,
+        start: first,
+        end: last,
         redundant: 0,
       },
     },

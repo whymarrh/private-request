@@ -28,3 +28,9 @@ export interface Usable<T> {
 export type UsableOrUnusable<A, B> = Usable<A> | Unusable<B>;
 
 export type PossibleResponseSegment<T extends ResponseSegment> = Unusable<Response> | Usable<T>;
+
+export interface ByteContentRange {
+  first: number;
+  last: number;
+  completeSize?: number;
+}
