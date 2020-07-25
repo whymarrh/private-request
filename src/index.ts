@@ -255,10 +255,10 @@ export default function (options: PrivateRequestOptions = {}): FetchImplementati
     const initialSegment = segments[0] as ResponseSegment;
     let bytes: Uint8Array | undefined = undefined;
     for (const segment of segments) {
-      const segmentBody = await segment.response.blob();
+      const segmentBody = await segment.response.arrayBuffer();
       const segmentBytes = segment.range.redundant == 0
-        ? (await segmentBody.arrayBuffer())
-        : (await segmentBody.arrayBuffer()).slice(segment.range.redundant);
+        ? segmentBody
+        : segmentBody.slice(segment.range.redundant);
 
       if (!bytes) {
         bytes = new Uint8Array(segmentBytes);
