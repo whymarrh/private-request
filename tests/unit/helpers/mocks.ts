@@ -17,7 +17,7 @@ const CORS_SAFELISTED_HEADERS = allLowerCase([
 ]);
 
 /**
- * Returns a {@code fetch} implementation that exposes the given headers.
+ * Returns a `fetch` implementation that exposes the given headers.
  *
  * See also: [CORS-safelisted response-header names]{@link https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name}
  *
