@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <title>Private Request Test Suite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<script src="https://code.jquery.com/qunit/qunit-2.10.1.js"
+        integrity="sha384-K3DOC8gn5XrAQlXvHOi+LAFrogH0NeEjHiUfH52hFu8pbeSK6WUs5bk8W0m7KI05"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
+        integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg=="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/6.3.3/system.min.js"
+        integrity="sha512-D4dEZGVG8wYcMUc3OorJs8hASvvUt39O+vbg+KPx4QwyrfMzNz8pZ2LLQ6ICqeHVRcI4w059BV9v1sOOMq9aFQ=="
+        crossorigin="anonymous"></script>
+
+<script>
+  (function () {
+    const endsWithFileExtension = /\/?\.[a-zA-Z]{2,}$/u;
+    const originalResolve = System.constructor.prototype.resolve;
+    System.constructor.prototype.resolve = function () {
+      // Apply original resolve to make sure import maps are resolved first
+      const url = originalResolve.apply(this, arguments);
+      // Append .js file extension if URL is missing a file extension
+      return endsWithFileExtension.test(url) ? url : url + '.js';
+    };
+  })();
+</script>
+
+<script>
+  QUnit.config.collapse = false;
+  QUnit.config.noglobals = true;
+  QUnit.config.testTimeout = 30 * 1000;
+  QUnit.module('fetch', async function fetchModule() {
+    const { default: fetchPrivately } = await System.import('./scripts/index.js');
+    QUnit.test('should fetch a 2M file', async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      const r = await f('http://localhost:8000/2M.cors.dat');
+      assert.strictEqual(r.status, 200, 'status is 200');
+      assert.strictEqual(r.headers.get('Content-Length'), '2097152', 'Content-Length is 2M');
+    });
+
+    QUnit.test('does fetch a full 32 byte CORS-enabled resource', async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      const r = await f('http://localhost:8000/32.cors.dat');
+      assert.strictEqual(r.status, 200, 'status is 200');
+      assert.strictEqual(r.headers.get('Content-Length'), '32', 'Content-Length is 32');
+    });
+
+    QUnit.test('does fetch a full 32 byte CORS-disabled resource', async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      await assert.rejects(f('http://localhost:8000/32.dat'), 'failed to fetch');
+    });
+  });
+</script>
+
+</body>
+</html>

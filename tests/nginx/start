@@ -8,9 +8,12 @@ set -o pipefail
 # shellcheck disable=SC2154
 exec docker run --rm --name "${npm_package_name}-nginx" \
   --publish 8000:80 \
+  --publish 8001:8001 \
   --detach \
   --volume "$PWD/tests/nginx/etc/nginx/mime.types:/etc/nginx/mime.types:ro" \
   --volume "$PWD/tests/nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
   --volume "$PWD/tests/nginx/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro" \
+  --volume "$PWD/tests/nginx/etc/nginx/conf.d/e2e.conf:/etc/nginx/conf.d/e2e.conf:ro" \
   --volume "$PWD/tests/fixtures:/usr/share/nginx/html" \
+  --volume "$PWD/tests/e2e:/app/e2e" \
   nginx:1
