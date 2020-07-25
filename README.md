@@ -18,6 +18,8 @@ $ yarn start:nginx
 $ yarn test
 ```
 
+To run the e2e tests, visit `localhost:8001` in a browser.
+
 This repository is available under the ISC License. See [`LICENSE.md`](./LICENSE.md).
 
   [pure-random-number]:https://www.npmjs.com/package/pure-random-number
