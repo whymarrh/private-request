@@ -24,7 +24,7 @@ interface RequestSegment {
   range: RequestRange;
 }
 
-interface InitialRequestSegment extends RequestSegment{
+interface InitialRequestSegment extends RequestSegment {
   totalSize: number;
 }
 
