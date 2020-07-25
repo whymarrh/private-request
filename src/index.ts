@@ -253,23 +253,27 @@ export default function (options: PrivateRequestOptions = {}): FetchImplementati
 
     const { value: segments } = possibleSegments;
     const initialSegment = segments[0] as ResponseSegment;
-    let bytes: Uint8Array | undefined = undefined;
-    for (const segment of segments) {
-      const segmentBody = await segment.response.arrayBuffer();
-      const segmentBytes = segment.range.redundant == 0
-        ? segmentBody
-        : segmentBody.slice(segment.range.redundant);
-
-      if (!bytes) {
-        bytes = new Uint8Array(segmentBytes);
-      } else {
-        bytes = concatBytes(bytes, new Uint8Array(segmentBytes))
-      }
-    }
-
-    assertIsNonNullable(bytes);
+    const bytes = await mergeSegmentBodies(segments);
     return new Response(bytes, copyResponseInit(initialSegment.response, bytes));
   };
+}
+
+async function mergeSegmentBodies(segments: ResponseSegment[]) {
+  const initialSegment = segments[0] as InitialResponseSegment;
+  const bytes = new Uint8Array(initialSegment.totalSize);
+
+  for (const segment of segments) {
+    const redundantBytes = segment.range.redundant;
+    const arrayBuffer = await segment.response.arrayBuffer();
+    const segmentBytes = new Uint8Array(
+      redundantBytes === 0
+        ? arrayBuffer
+        : arrayBuffer.slice(redundantBytes)
+    );
+    bytes.set(segmentBytes, segment.range.start + redundantBytes);
+  }
+
+  return bytes;
 }
 
 function copyResponseInit(init: Response, body: Uint8Array): ResponseInit {
@@ -281,11 +285,4 @@ function copyResponseInit(init: Response, body: Uint8Array): ResponseInit {
     statusText: 'OK',
     headers,
   };
-}
-
-function concatBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
-  const tmp = new Uint8Array(a.byteLength + b.byteLength);
-  tmp.set(new Uint8Array(a));
-  tmp.set(new Uint8Array(b), a.byteLength);
-  return tmp;
 }
