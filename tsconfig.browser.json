@@ -3,7 +3,8 @@
   "compilerOptions": {
     "incremental": false,
 
-    "sourceMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
     "target": "ES2015",
     "module": "System",
 
