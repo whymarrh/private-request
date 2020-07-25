@@ -9,7 +9,7 @@ const test = baretest(filename(import.meta.url));
 
 setupGlobals(test);
 
-test('does fetch headers for a resource that has an exposed `Accept-Ranges: bytes` header', async () => {
+test('fetches headers for a resource that has an exposed `Accept-Ranges: bytes` header', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.cors.dat', { method: 'HEAD' });
   assert.equal(r.status, 200);
@@ -17,7 +17,7 @@ test('does fetch headers for a resource that has an exposed `Accept-Ranges: byte
   assert.equal(r.headers.get('Accept-Ranges'), 'bytes');
 });
 
-test('does fetch headers for a resource that does NOT have an exposed `Accept-Ranges: bytes` header', async () => {
+test('fetches headers for a resource that does NOT have an exposed `Accept-Ranges: bytes` header', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.cors.nobytes.dat', { method: 'HEAD' });
   assert.equal(r.status, 200);
@@ -25,7 +25,7 @@ test('does fetch headers for a resource that does NOT have an exposed `Accept-Ra
   assert.equal(r.headers.get('Accept-Ranges'), null);
 });
 
-test('does fetch headers for a resource that does NOT have a `Accept-Ranges: bytes` header', async () => {
+test('fetches headers for a resource that does NOT have a `Accept-Ranges: bytes` header', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.nobytes.dat', { method: 'HEAD' });
   assert.equal(r.status, 200);
@@ -34,7 +34,7 @@ test('does fetch headers for a resource that does NOT have a `Accept-Ranges: byt
   assert.equal(r.headers.get('Accept-Ranges'), null);
 });
 
-test('does fetch part of a resource using `Range` header', async () => {
+test('fetches part of a resource using `Range` header', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.cors.dat', {
     method: 'GET',
@@ -47,7 +47,7 @@ test('does fetch part of a resource using `Range` header', async () => {
   assert.equal(r.headers.get('Content-Range'), 'bytes 0-15/32');
 });
 
-test('does fetch too much of a resource using `Range` header', async () => {
+test('fetches too much of a resource using `Range` header', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.cors.dat', {
     method: 'GET',
@@ -60,7 +60,7 @@ test('does fetch too much of a resource using `Range` header', async () => {
   assert.equal(r.headers.get('Content-Range'), 'bytes 0-31/32');
 });
 
-test('does fetch a full 32 byte resource', async () => {
+test('fetches a full 32 byte resource', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/32.cors.dat');
   assert.equal(r.status, 200);
@@ -68,7 +68,7 @@ test('does fetch a full 32 byte resource', async () => {
   assert.equal((await r.arrayBuffer()).byteLength, 32);
 });
 
-test('does fetch a full 1M resource', async () => {
+test('fetches a full 1M resource', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/1M.cors.dat');
   assert.equal(r.status, 200);
@@ -76,7 +76,7 @@ test('does fetch a full 1M resource', async () => {
   assert.equal((await r.arrayBuffer()).byteLength, Bytes.mebiBytes(1));
 });
 
-test('does fetch a full 2M resource', async () => {
+test('fetches a full 2M resource', async () => {
   const f = fetchPrivately({ fetch });
   const r = await f('http://localhost:8000/2M.cors.dat');
   assert.equal(r.status, 200);

@@ -9,7 +9,7 @@ const test = baretest(filename(import.meta.url));
 
 const getRandomNumber = async (_: number, __: number) => 0;
 
-test('does fetch all segments for a resource when range requests are allowed and CORS allows `Content-Range`', async () => {
+test('fetches all segments for a 2M resource when range requests are allowed and CORS allows `Content-Range`', async () => {
   const res = await fetchSegments(fetch, 'http://localhost:8000/2M.cors.dat', getRandomNumber);
   assertType(res.type === 'usable', 'response should be usable');
   const { value: segments } = res;
@@ -30,7 +30,7 @@ test('does fetch all segments for a resource when range requests are allowed and
   }]);
 });
 
-test('does fetch all segments for a 32 byte resource when range requests are allowed and CORS allows `Content-Range`', async () => {
+test('fetches all segments for a 32 byte resource when range requests are allowed and CORS allows `Content-Range`', async () => {
   const res = await fetchSegments(fetch, 'http://localhost:8000/32.cors.dat', getRandomNumber);
   assertType(res.type === 'usable', 'response should be usable');
   const { value: segments } = res;

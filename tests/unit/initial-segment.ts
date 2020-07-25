@@ -10,7 +10,7 @@ const test = baretest(filename(import.meta.url));
 
 const getRandomNumber = async (_: number, __: number) => 42;
 
-test('does fetch an initial segment of the resource when range requests are allowed and CORS allows `Content-Range`', async () => {
+test('fetches an initial segment of the resource when range requests are allowed and CORS allows `Content-Range`', async () => {
   const r = await fetchInitialSegment(fetch, 'http://localhost:8000/1M.cors.dat', getRandomNumber);
   assertType(r.type === 'usable', 'response should be usable');
   const { value: res } = r;
@@ -20,7 +20,7 @@ test('does fetch an initial segment of the resource when range requests are allo
   assert.equal(res.totalSize, Bytes.mebiBytes(1));
 });
 
-test('does fetch the full resource when range requests are allowed but CORS masks `Content-Range`', async () => {
+test('fetches the full resource when range requests are allowed but CORS masks `Content-Range`', async () => {
   const r = await fetchInitialSegment(fetchExposeHeaders(), 'http://localhost:8000/1M.dat', getRandomNumber);
   assertType(r.type === 'unusable', 'response should be unusable');
   const { value: res } = r;
@@ -29,7 +29,7 @@ test('does fetch the full resource when range requests are allowed but CORS mask
   assert.equal(res.headers.get('Content-Length'), Bytes.mebiBytes(1).toString(10));
 });
 
-test('does fetch the full resource when range requests are NOT allowed', async () => {
+test('fetches the full resource when range requests are NOT allowed', async () => {
   const r = await fetchInitialSegment(fetch, 'http://localhost:8000/1M.cors.nobytes.dat', getRandomNumber);
   assertType(r.type === 'unusable', 'response should be unusable');
   const { value: res } = r;

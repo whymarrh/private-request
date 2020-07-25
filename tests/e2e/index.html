@@ -40,23 +40,23 @@
   QUnit.config.testTimeout = 30 * 1000;
   QUnit.module('fetch', async function fetchModule() {
     const { default: fetchPrivately } = await System.import('./scripts/index.js');
-    QUnit.test('should fetch a 2M file', async function test(assert) {
+    QUnit.test('fetches a 2M resource', async function test(assert) {
       const f = fetchPrivately({ fetch });
       const r = await f('http://localhost:8000/2M.cors.dat');
       assert.strictEqual(r.status, 200, 'status is 200');
       assert.strictEqual(r.headers.get('Content-Length'), '2097152', 'Content-Length is 2M');
     });
 
-    QUnit.test('does fetch a full 32 byte CORS-enabled resource', async function test(assert) {
+    QUnit.test('fetches a 32 byte CORS-enabled resource', async function test(assert) {
       const f = fetchPrivately({ fetch });
       const r = await f('http://localhost:8000/32.cors.dat');
       assert.strictEqual(r.status, 200, 'status is 200');
       assert.strictEqual(r.headers.get('Content-Length'), '32', 'Content-Length is 32');
     });
 
-    QUnit.test('does fetch a full 32 byte CORS-disabled resource', async function test(assert) {
+    QUnit.test('fails to fetch a 32 byte CORS-disabled resource', async function test(assert) {
       const f = fetchPrivately({ fetch });
-      await assert.rejects(f('http://localhost:8000/32.dat'), 'failed to fetch');
+      await assert.rejects(f('http://localhost:8000/32.dat'), /TypeError/u, 'failed to fetch');
     });
   });
 </script>

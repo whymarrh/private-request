@@ -46,7 +46,7 @@ test('a 6 byte segment size for a 13 byte resource does have 5 redundant bytes',
   assert.equal(getRedundantByteCount(13, 6, 12), 5);
 });
 
-test('does segment a 13 byte request into one 13 byte request', async () => {
+test('segments a 13 byte resource into one 13 byte request', async () => {
   const ranges = getSegmentRanges(13, 13, 0);
   assert.equal(ranges.length, 1);
   assert.deepEqual(ranges, [{
@@ -56,7 +56,7 @@ test('does segment a 13 byte request into one 13 byte request', async () => {
   }]);
 });
 
-test('does segment a 13 byte request into three 6 byte requests', async () => {
+test('segments a 13 byte resource into three 6 byte requests', async () => {
   // [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12]
   //  ^--------------------^
   //         Request 1
@@ -81,7 +81,7 @@ test('does segment a 13 byte request into three 6 byte requests', async () => {
   }]);
 });
 
-test('does segment a 200 byte request into two 100 byte requests', async () => {
+test('segments a 200 byte resource into two 100 byte requests', async () => {
   const ranges = getSegmentRanges(200, 100, 0);
   assert.equal(ranges.length, 2);
   assert.deepEqual(ranges, [{
@@ -95,7 +95,7 @@ test('does segment a 200 byte request into two 100 byte requests', async () => {
   }]);
 });
 
-test('does segment a 101 byte request into two 100 byte requests', async () => {
+test('segments a 101 byte resource into two 100 byte requests', async () => {
   const ranges = getSegmentRanges(101, 100, 0);
   assert.equal(ranges.length, 2);
   assert.deepEqual(ranges, [{
@@ -109,7 +109,7 @@ test('does segment a 101 byte request into two 100 byte requests', async () => {
   }]);
 });
 
-test('does segment a 2M request into two 1M requests', async () => {
+test('segments a 2M resource into two 1M requests', async () => {
   const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), 0);
   assert.equal(ranges.length, 2);
   assert.deepEqual(ranges, [{
@@ -123,7 +123,7 @@ test('does segment a 2M request into two 1M requests', async () => {
   }]);
 });
 
-test('does segment a 2M request into two 1M requests starting at 1K', async () => {
+test('segments a 2M resource into two 1M requests starting at 1K', async () => {
   const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), Bytes.kibiBytes(1));
   assert.equal(ranges.length, 2);
   assert.deepEqual(ranges, [{
@@ -137,7 +137,7 @@ test('does segment a 2M request into two 1M requests starting at 1K', async () =
   }]);
 });
 
-test('does segment a 2M request into two 1M requests starting at 1K - 1', async () => {
+test('segments a 2M resource into two 1M requests starting at 1K - 1', async () => {
   const ranges = getSegmentRanges(Bytes.mebiBytes(2), Bytes.mebiBytes(1), Bytes.kibiBytes(1) - 1);
   assert.equal(ranges.length, 2);
   assert.deepEqual(ranges, [{

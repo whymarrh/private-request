@@ -9,7 +9,7 @@ const test = baretest(filename(import.meta.url));
 
 setupGlobals(test);
 
-test('does fetch a resource that does NOT have any exposed headers', async () => {
+test('fetches a resource that does NOT have any exposed headers', async () => {
   const f = fetchPrivately({ fetch: fetchExposeHeaders() });
   // Nginx is configured to not expose headers for this resource but node-fetch doesn't
   // enforce CORS. The fetch implementation used sets the headers to simulate the behaviour.
