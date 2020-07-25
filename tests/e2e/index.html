@@ -58,6 +58,12 @@
       const f = fetchPrivately({ fetch });
       await assert.rejects(f('http://localhost:8000/32.dat'), /TypeError/u, 'failed to fetch');
     });
+
+    QUnit.test("fetches a non-existent CORS-disabled resource using 'no-cors'", async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      const r = await f('http://localhost:8000/fake.dat', { mode: 'no-cors' });
+      assert.strictEqual(r.ok, false, 'request is not ok');
+    });
   });
 </script>
 

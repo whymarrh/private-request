@@ -84,4 +84,10 @@ test('fetches a full 2M resource', async () => {
   assert.equal((await r.arrayBuffer()).byteLength, Bytes.mebiBytes(2));
 });
 
+test('fails to fetch a non-existent resource', async () => {
+  const f = fetchPrivately({ fetch });
+  const r = await f('http://localhost:8000/fake.dat');
+  assert.equal(r.status, 404);
+});
+
 await run(test);
