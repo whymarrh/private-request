@@ -7,7 +7,7 @@ set -o pipefail
 # This comes via `yarn run`
 # shellcheck disable=SC2154
 exec docker run --rm --name "${npm_package_name}-nginx" \
-  --publish 8000:80 \
+  --publish 8000:8000 \
   --publish 8001:8001 \
   --detach \
   --volume "$PWD/tests/nginx/etc/nginx/mime.types:/etc/nginx/mime.types:ro" \
