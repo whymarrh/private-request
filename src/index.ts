@@ -70,16 +70,21 @@ export function parseByteContentRange(value: string): ByteContentRange | undefin
   };
 }
 
-async function fetchUnusableResource(fetch: FetchImplementation, req: RequestInfo): Promise<Unusable<Response>> {
-  const response = await fetch(req);
+async function fetchUnusableResource(fetch: FetchImplementation, input: RequestInfo): Promise<Unusable<Response>> {
+  const response = await fetch(input);
   return {
     type: 'unusable',
     value: response,
   };
 }
 
-async function fetchSegment(fetch: FetchImplementation, req: RequestInfo, segment: RequestRange): Promise<PossibleResponseSegment<ResponseSegment>> {
-  const response = await fetch(req, {
+async function fetchSegment(
+  fetch: FetchImplementation,
+  input: RequestInfo,
+  segment: RequestRange,
+): Promise<PossibleResponseSegment<ResponseSegment>>
+{
+  const response = await fetch(input, {
     headers: {
       'Range': `bytes=${segment.start}-${segment.end}`,
     },
@@ -103,12 +108,12 @@ async function fetchSegment(fetch: FetchImplementation, req: RequestInfo, segmen
 
 export async function fetchInitialSegment(
   fetch: FetchImplementation,
-  req: RequestInfo,
+  input: RequestInfo,
   rand: RandomNumberGenerator,
 ): Promise<PossibleResponseSegment<InitialResponseSegment>>
 {
   const segmentLength = Bytes.kibiBytes(1) + await rand(0, Bytes.kibiBytes(1));
-  const s = await fetchSegment(fetch, req, {
+  const s = await fetchSegment(fetch, input, {
     start: 0,
     end: segmentLength - 1,
     redundant: 0,
@@ -122,19 +127,19 @@ export async function fetchInitialSegment(
   const contentRange = response.headers.get('Content-Range');
 
   if (!contentRange) {
-    return fetchUnusableResource(fetch, req);
+    return fetchUnusableResource(fetch, input);
   }
 
   const byteContentRange = parseByteContentRange(contentRange);
 
   if (!isDefined(byteContentRange)) {
-    return fetchUnusableResource(fetch, req);
+    return fetchUnusableResource(fetch, input);
   }
 
   const { first, last, completeSize } = byteContentRange;
 
   if (!isDefined(completeSize)) {
-    return fetchUnusableResource(fetch, req);
+    return fetchUnusableResource(fetch, input);
   }
 
   return {
@@ -226,11 +231,11 @@ export function getSegmentRanges(contentLength: number, segmentSize: number, sta
 
 export async function fetchSegments(
   fetch: FetchImplementation,
-  req: RequestInfo,
+  input: RequestInfo,
   rand: RandomNumberGenerator,
 ): Promise<UsableOrUnusable<ResponseSegment[], Response>>
 {
-  const initialResponse = await fetchInitialSegment(fetch, req, rand);
+  const initialResponse = await fetchInitialSegment(fetch, input, rand);
 
   if (initialResponse.type === 'unusable') {
     return initialResponse;
@@ -249,7 +254,7 @@ export async function fetchSegments(
 
   const segments: ResponseSegment[] = [initialResponse.value];
   for (const segmentRange of getSegmentRanges(totalSize, getSegmentSize(totalSize), range.end + 1)) {
-    const segmentResponse = await fetchSegment(fetch, req, segmentRange);
+    const segmentResponse = await fetchSegment(fetch, input, segmentRange);
 
     if (segmentResponse.type === 'unusable') {
       return segmentResponse;
@@ -310,7 +315,7 @@ async function mergeSegmentBodies(segments: ResponseSegment[]) {
   return bytes;
 }
 
-function copyResponseInit(init: Response, body: Uint8Array): ResponseInit {
+function copyResponseInit(init: ResponseInit, body: Uint8Array): ResponseInit {
   const headers = new Headers(init.headers);
   headers.set('Content-Length', body.byteLength.toString());
 
