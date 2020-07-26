@@ -9,12 +9,12 @@ import type {
   ByteContentRange,
 } from './response-types';
 
-interface RandomNumberGenerator {
-  (min: number, max: number): Promise<number>;
-}
-
 interface FetchImplementation {
   (input: RequestInfo, init?: RequestInit): Promise<Response>;
+}
+
+interface RandomNumberGenerator {
+  (min: number, max: number): Promise<number>;
 }
 
 interface PrivateRequestOptions {
