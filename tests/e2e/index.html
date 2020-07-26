@@ -59,10 +59,28 @@
       await assert.rejects(f('http://localhost:8000/32.dat'), /TypeError/u, 'failed to fetch');
     });
 
+    QUnit.test("fails to fetch a 32 byte CORS-disabled resource using 'same-origin'", async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      await assert.rejects(f('http://localhost:8000/32.dat', { mode: 'same-origin' }), /TypeError/u, 'failed to fetch');
+    });
+
     QUnit.test("fetches a non-existent CORS-disabled resource using 'no-cors'", async function test(assert) {
       const f = fetchPrivately({ fetch });
       const r = await f('http://localhost:8000/fake.dat', { mode: 'no-cors' });
       assert.strictEqual(r.ok, false, 'request is not ok');
+    });
+
+    QUnit.test('fails to fetch words.dat when using the wrong integrity hash', async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      const init = { integrity: 'sha384-1lIqF875X4vaDs00Z4Rme8tgjhbPVuXzRe07BdC6fC+6C91jeBc7VsKobTe-----' };
+      await assert.rejects(f('http://localhost:8000/words.cors.dat', init), /TypeError/u, 'failed to fetch');
+    });
+
+    QUnit.test('fetches words.dat when using the correct integrity hash', async function test(assert) {
+      const f = fetchPrivately({ fetch });
+      const init = { integrity: 'sha384-1lIqF875X4vaDs00Z4Rme8tgjhbPVuXzRe07BdC6fC+6C91jeBc7VsKobTeRO5Of' };
+      const r = await f('http://localhost:8000/words.cors.dat', init);
+      assert.strictEqual(r.status, 200, 'status is 200');
     });
   });
 </script>

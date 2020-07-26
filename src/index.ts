@@ -17,6 +17,12 @@ interface RandomNumberGenerator {
   (min: number, max: number): Promise<number>;
 }
 
+type HashAlgo = 'sha256' | 'sha384' | 'sha512';
+type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
+type HashFunction = (data: DigestData) => Promise<ArrayBuffer>;
+type HashFunctions = Record<HashAlgo, HashFunction>;
+type HashFunctionOptions = Partial<Record<HashAlgo, HashFunction>>;
+
 interface PrivateRequestOptions {
   fetch?: FetchImplementation;
   rng?: RandomNumberGenerator;
@@ -35,6 +41,16 @@ function assert(condition: any, msg: string): asserts condition {
 function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
   if (val === undefined || val === null) {
     throw new Error(`Expected value to be defined, but received '${val}'`);
+  }
+}
+
+/**
+ * Asserts that the given value is a non-empty string.
+ * @param val - the value to check
+ */
+function assertIsNonEmptyString(val: any): asserts val is string {
+  if (typeof val !== 'string' || val.trim().length === 0) {
+    throw new TypeError(`Expected non-empty string, but received '${val}'`);
   }
 }
 
@@ -273,15 +289,93 @@ export async function fetchSegments(
   };
 }
 
-const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
+/**
+ * Returns the algorithm and digest components of the given integrity string.
+ *
+ * See also: [Subresource Integrity - MDN]{@link https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity}
+ *
+ * See also: [Subresource Integrity]{@link https://w3c.github.io/webappsec-subresource-integrity/}
+ *
+ * @param integrity - the integrity string
+ */
+export function parseIntegrity(integrity: string): [HashAlgo, string] | undefined {
+  assertIsNonEmptyString(integrity);
 
-export default function (options: PrivateRequestOptions = {}): FetchImplementation {
+  // base64-value      = 1*( ALPHA / DIGIT / "+" / "/" )*2( "=" )
+  // hash-algo         = "sha256" / "sha384" / "sha512"
+  // — https://www.w3.org/TR/CSP2/#source-list-syntax
+  // hash-algo          = <hash-algo production from [Content Security Policy Level 2, section 4.2]>
+  // base64-value       = <base64-value production from [Content Security Policy Level 2, section 4.2]>
+  // hash-expression    = hash-algo "-" base64-value
+  // — https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute
+  const regExp = /^(sha(?:(?:256)|(?:384)|(?:512)))-([a-zA-Z0-9+/]+[=]{0,2})$/u;
+  const [, algorithm, digest] = integrity.match(regExp) ?? [];
+
+  if (!isDefined(algorithm) || !isDefined(digest)) {
+    return undefined;
+  }
+
+  return [
+    algorithm as HashAlgo,
+    digest,
+  ];
+}
+
+/**
+ * Returns a digest of the given data.
+ *
+ * The term digest refers to the base64 encoded result of executing a cryptographic
+ * hash function on an arbitrary block of data, per
+ * [Subresource Integrity §2]{@link https://w3c.github.io/webappsec-subresource-integrity/#terms}
+ *
+ * @param hash - the cryptographic hash function to apply
+ * @param args - the args for the cryptographic hash function, including data
+ */
+export async function digest(hash: HashFunction, ...args: Parameters<HashFunction>): Promise<string> {
+  const arrayBuffer = await hash(...args);
+  const bytes = new Uint8Array(arrayBuffer);
+
+  let s = '';
+  for (const byte of bytes) {
+    s += String.fromCharCode(byte);
+  }
+
+  return btoa(s);
+}
+
+export async function verifyIntegrity(data: Uint8Array, integrity: string | undefined, fns: HashFunctions) {
+  if (!integrity) {
+    return;
+  }
+
+  const parsedIntegrity = parseIntegrity(integrity);
+
+  if (!parsedIntegrity) {
+    throw new TypeError('failed to fetch');
+  }
+
+  const [ algorithm, expectedDigest ] = parsedIntegrity;
+  const actualDigest = await digest(fns[algorithm], data);
+  if (actualDigest !== expectedDigest) {
+    throw new TypeError('failed to fetch');
+  }
+}
+
+const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
+const subtleCryptoDigest256 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-256', data);
+const subtleCryptoDigest384 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-384', data);
+const subtleCryptoDigest512 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-512', data);
+
+export default function (options: PrivateRequestOptions & HashFunctionOptions = {}): FetchImplementation {
   const {
     fetch = window?.fetch,
     rng = nullRandomNumberGenerator,
+    sha256 = subtleCryptoDigest256,
+    sha384 = subtleCryptoDigest384,
+    sha512 = subtleCryptoDigest512,
   } = options;
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
-    if (init && (init.method !== 'GET' || init.headers)) {
+    if (init && (init.method !== undefined && init.method !== 'GET' || init.headers || (init.mode !== undefined && init.mode !== 'cors'))) {
       return fetch(input, init);
     }
 
@@ -293,6 +387,7 @@ export default function (options: PrivateRequestOptions = {}): FetchImplementati
     const { value: segments } = possibleSegments;
     const initialSegment = segments[0] as ResponseSegment;
     const bytes = await mergeSegmentBodies(segments);
+    await verifyIntegrity(bytes, init?.integrity, { sha256, sha384, sha512 });
     return new Response(bytes, copyResponseInit(initialSegment.response, bytes));
   };
 }
