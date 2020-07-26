@@ -1,5 +1,5 @@
 import type { DigestData, HashFunctionOptions } from './crypto';
-import type { ResponseSegment, InitialResponseSegment } from './response-types';
+import type { ResponseSegment, InitialResponseSegment } from './responses';
 
 import { fetchSegments, verifyIntegrity } from './impl';
 

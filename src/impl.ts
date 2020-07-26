@@ -11,7 +11,7 @@ import type {
   UsableOrUnusable,
   PossibleResponseSegment,
   ByteContentRange,
-} from './response-types';
+} from './responses';
 
 import Bytes from './bytes';
 
