@@ -12,11 +12,11 @@ EOF
 
 find . -maxdepth 1 -type f -name '*.dat' -delete
 
-for size in 32 64 1M 2M;
+for size in 32 64 1M 2M
 do
   printf '%s\n' "# Write ${size}.dat"
   docker run --rm --volume "$PWD:/app" --workdir '/app' ubuntu:20.04 \
-    dd if=/dev/zero "of=${size}.dat" "bs=${size}" count=1;
+    dd if=/dev/zero "of=${size}.dat" "bs=${size}" count=1
   cp "${size}.dat" "${size}.cors.dat"
   cp "${size}.dat" "${size}.cors.nobytes.dat"
   cp "${size}.dat" "${size}.cors.noexpose.dat"
@@ -28,4 +28,4 @@ do
   cp "words.dat" "words.cors.nobytes.dat"
   cp "words.dat" "words.cors.noexpose.dat"
   cp "words.dat" "words.nobytes.dat"
-done;
+done
