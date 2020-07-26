@@ -41,7 +41,7 @@ function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
 export function parseByteContentRange(value: string): ByteContentRange | undefined {
   assertIsNonNullable(value);
 
-  const regExp =/^bytes (\d+)-(\d+)\/((?:\d+)|(?:[*]))$/u;
+  const regExp = /^bytes (\d+)-(\d+)\/((?:\d+)|(?:[*]))$/u;
   const [, ...parts] = value.match(regExp) ?? [];
   const [first, last, completeSize] = parts.map((n) => {
     const parsed = parseInt(n, 10);
@@ -243,7 +243,7 @@ export async function fetchSegments(
 
   const { value: { totalSize, range } } = initialResponse;
 
-  if (range.end == (totalSize - 1)) {
+  if (range.end === (totalSize - 1)) {
     return {
       type: 'usable',
       value: [
