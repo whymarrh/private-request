@@ -1,5 +1,12 @@
 import Bytes from './bytes';
 import type {
+  IntegrityHashAlgo,
+  DigestData,
+  HashFunction,
+  HashFunctionOptions,
+  IntegrityHashFunctions,
+} from './crypto';
+import type {
   RequestRange,
   ResponseSegment,
   InitialResponseSegment,
@@ -16,12 +23,6 @@ interface FetchImplementation {
 interface RandomNumberGenerator {
   (min: number, max: number): Promise<number>;
 }
-
-type HashAlgo = 'sha256' | 'sha384' | 'sha512';
-type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
-type HashFunction = (data: DigestData) => Promise<ArrayBuffer>;
-type HashFunctions = Record<HashAlgo, HashFunction>;
-type HashFunctionOptions = Partial<Record<HashAlgo, HashFunction>>;
 
 interface PrivateRequestOptions {
   fetch?: FetchImplementation;
@@ -298,7 +299,7 @@ export async function fetchSegments(
  *
  * @param integrity - the integrity string
  */
-export function parseIntegrity(integrity: string): [HashAlgo, string] | undefined {
+export function parseIntegrity(integrity: string): [IntegrityHashAlgo, string] | undefined {
   assertIsNonEmptyString(integrity);
 
   // base64-value      = 1*( ALPHA / DIGIT / "+" / "/" )*2( "=" )
@@ -316,7 +317,7 @@ export function parseIntegrity(integrity: string): [HashAlgo, string] | undefine
   }
 
   return [
-    algorithm as HashAlgo,
+    algorithm as IntegrityHashAlgo,
     digest,
   ];
 }
@@ -343,7 +344,7 @@ export async function digest(hash: HashFunction, ...args: Parameters<HashFunctio
   return btoa(s);
 }
 
-export async function verifyIntegrity(data: Uint8Array, integrity: string | undefined, fns: HashFunctions) {
+export async function verifyIntegrity(data: Uint8Array, integrity: string | undefined, fns: IntegrityHashFunctions) {
   if (!integrity) {
     return;
   }
@@ -362,17 +363,35 @@ export async function verifyIntegrity(data: Uint8Array, integrity: string | unde
 }
 
 const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
-const subtleCryptoDigest256 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-256', data);
-const subtleCryptoDigest384 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-384', data);
-const subtleCryptoDigest512 = async (data: DigestData) => await window.crypto.subtle.digest('SHA-512', data);
+
+/**
+ * Returns a SHA-256 digest of the given data
+ *
+ * @param data - the data to digest
+ */
+const sha256Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-256', data);
+
+/**
+ * Returns a SHA-384 digest of the given data
+ *
+ * @param data - the data to digest
+ */
+const sha384Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-384', data);
+
+/**
+ * Returns a SHA-512 digest of the given data
+ *
+ * @param data - the data to digest
+ */
+const sha512Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-512', data);
 
 export default function (options: PrivateRequestOptions & HashFunctionOptions = {}): FetchImplementation {
   const {
     fetch = window?.fetch,
     rng = nullRandomNumberGenerator,
-    sha256 = subtleCryptoDigest256,
-    sha384 = subtleCryptoDigest384,
-    sha512 = subtleCryptoDigest512,
+    sha256 = sha256Browser,
+    sha384 = sha384Browser,
+    sha512 = sha512Browser,
   } = options;
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
     if (init && (init.method !== undefined && init.method !== 'GET' || init.headers || (init.mode !== undefined && init.mode !== 'cors'))) {

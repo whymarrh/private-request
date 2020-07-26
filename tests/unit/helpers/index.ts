@@ -33,13 +33,31 @@ export function assertType(condition: boolean, message?: string | Error): assert
   assert.equal(condition, true, message);
 }
 
-type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
+/**
+ * Represents data for a hash function
+ */
+export type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
 
+/**
+ * Returns a SHA-256 digest of the given data
+ *
+ * @param data - the data to digest
+ */
 export const sha256 = async (data: DigestData): Promise<ArrayBuffer> =>
   crypto.createHash('sha256').update(data as any).digest();
 
+/**
+ * Returns a SHA-384 digest of the given data
+ *
+ * @param data - the data to digest
+ */
 export const sha384 = async (data: DigestData): Promise<ArrayBuffer> =>
   crypto.createHash('sha384').update(data as any).digest();
 
+/**
+ * Returns a SHA-512 digest of the given data
+ *
+ * @param data - the data to digest
+ */
 export const sha512 = async (data: DigestData): Promise<ArrayBuffer> =>
   crypto.createHash('sha512').update(data as any).digest();
