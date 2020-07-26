@@ -24,4 +24,8 @@ do
 
   docker run --rm --volume "$PWD:/app" --workdir '/app' "$wordlist_image" \
     cp /usr/share/dict/canadian-english-huge words.dat
+  cp "words.dat" "words.cors.dat"
+  cp "words.dat" "words.cors.nobytes.dat"
+  cp "words.dat" "words.cors.noexpose.dat"
+  cp "words.dat" "words.nobytes.dat"
 done;
