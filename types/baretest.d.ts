@@ -12,9 +12,5 @@ declare module 'baretest' {
     only(name: string, fn: () => Promise<void>): void;
   }
 
-  export interface Baretest {
-    (headline: string): Test;
-  }
-
   export default function (headline: string): Test;
 }
