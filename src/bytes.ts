@@ -1,3 +1,10 @@
+/**
+ * Represents the size of bytes
+ *
+ * @example
+ * Bytes.kibiBytes(42); // 42 kibibytes in bytes
+ * Bytes.mebiBytes(42); // 42 mebibytes in bytes
+ */
 export default class Bytes {
   static bytes(n: number): number {
     return n;
