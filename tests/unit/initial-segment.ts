@@ -1,8 +1,8 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
-import { fetchInitialSegment } from '../../src';
 import Bytes from '../../src/bytes';
+import { fetchInitialSegment } from '../../src/impl';
 import { assertType, filename, run } from './helpers';
 import { fetchExposeHeaders } from './helpers/mocks';
 

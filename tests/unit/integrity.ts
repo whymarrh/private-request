@@ -1,7 +1,8 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
-import fetchPrivately, { digest, parseIntegrity } from '../../src';
+import fetchPrivately from '../../src';
+import { digest, parseIntegrity } from '../../src/impl';
 import { filename, run, setupGlobals, sha256, sha384, sha512 } from './helpers';
 
 const test = baretest(filename(import.meta.url));
