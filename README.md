@@ -26,7 +26,7 @@ This repository is available under the ISC License. See [`LICENSE.md`](./LICENSE
 
 ### On CORS
 
-The ability to perform range requests for a given resource requires the correct CORS headers.
+The ability to perform range requests on the web requires the correct CORS headers.
 
 Namely:
 
