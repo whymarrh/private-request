@@ -11,6 +11,7 @@
     "access": "public"
   },
   "scripts": {
+    "prepublishOnly": "yarn build:clean",
     "build": "tsc --project .",
     "build:e2e": "tsc --project tsconfig.browser.json",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
