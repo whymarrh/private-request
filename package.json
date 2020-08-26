@@ -6,6 +6,10 @@
   "main": "src/index.js",
   "type": "module",
   "license": "ISC",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc --project .",
     "build:e2e": "tsc --project tsconfig.browser.json",
