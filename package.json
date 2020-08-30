@@ -1,7 +1,7 @@
 {
   "name": "private-request",
   "description": "A fetch wrapper that hampers traffic analysis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "src/index.js",
   "type": "module",
   "license": "ISC",
