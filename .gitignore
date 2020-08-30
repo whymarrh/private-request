@@ -1,3 +1,4 @@
+*.tgz
 *.tsbuildinfo
 *.js
 node_modules
