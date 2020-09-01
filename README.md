@@ -26,7 +26,7 @@ From Signal's article:<sup>[\[1\]][signal-and-giphy]</sup>
 >
 > We can also abuse range requests to simulate padding on content we don't control.
 
-This library uses [range requests][range-requests] to split a request into segments
+This package uses [range requests][range-requests] to split a request into segments
 with some padding.
 
 ### What does this mean in practice?
@@ -59,7 +59,7 @@ We have requested the 5th, 6th, and 7th bytes twice and can discard the redundan
 
 #### Larger segment sizes
 
-This module will use segment sizes a lot larger than 4 bytes, picking the smallest
+This package will use segment sizes a lot larger than 4 bytes, picking the smallest
 segment size (N₂) from the following list such that N₁ ≥ N₂ holds:
 
 | 𝑥 | Unit |
