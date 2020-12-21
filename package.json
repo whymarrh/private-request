@@ -22,6 +22,7 @@
     "build": "tsc --project .",
     "build:e2e": "tsc --project tsconfig.browser.json",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
+    "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && tests/unit/runner",
     "logs:nginx": "docker logs --timestamps --follow \"${npm_package_name}-nginx\"",
     "start:nginx": "tests/nginx/start",
