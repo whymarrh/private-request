@@ -4,6 +4,12 @@ set -e
 set -u
 set -o pipefail
 
+if ! command -v docker &> /dev/null
+then
+  printf '%s\n' 'Docker is required but missing' 1>&2
+  exit 1
+fi
+
 # This comes via `yarn run`
 # shellcheck disable=SC2154
 exec docker run --rm --name "${npm_package_name}-nginx" \
