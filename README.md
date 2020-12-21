@@ -34,7 +34,7 @@ with some padding.
 Using range requests we can turn 1 request for a N₁-byte resource into M requests for N₂-bytes, where:
 
 1. N₁ ≥ N₂; and
-2. (M x N₂) ≥ N₁
+2. (M × N₂) ≥ N₁
 
 (At the time of writing the diagram in the Signal article has inconsistent segment sizes,
 so there is a different example below.)
