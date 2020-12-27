@@ -1,4 +1,4 @@
-<img alt="Private Request" src="https://user-images.githubusercontent.com/1623628/88346472-fcad0100-cd22-11ea-80f7-aac41eb9efd5.png" width="512px">
+<img alt="Private Request" src="docs/images/logo/512x256/dark@2x.png" width="512px">
 
 A `fetch` wrapper that hampers traffic analysis, based on Signal's [_Expanding Signal GIF search_][signal-and-giphy] article.
 
