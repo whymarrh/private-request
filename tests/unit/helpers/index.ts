@@ -25,7 +25,6 @@ export function setupGlobals(test: Test) {
     const { Headers, Response } = fetch;
     globalThis.Headers ??= Headers;
     globalThis.Response ??= Response;
-    globalThis.btoa ??= (s: string) => Buffer.from(s, 'binary').toString('base64');
   });
 }
 
