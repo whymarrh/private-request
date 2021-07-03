@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+set -E
+set -u
+set -o pipefail
+
+declare -r version="2.4.3"
+
+cd "$(mktemp -d)"
+curl -sSL \
+  "https://github.com/caddyserver/caddy/releases/download/v${version}/caddy_${version}_linux_amd64.tar.gz" | \
+  tar xz caddy
+
+printf '%s\n' "${PWD}" >> $GITHUB_PATH
+
+"${PWD}/caddy" version

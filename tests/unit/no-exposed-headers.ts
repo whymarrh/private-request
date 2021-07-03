@@ -11,7 +11,7 @@ setupGlobals(test);
 
 test('fetches a resource that does NOT have any exposed headers', async () => {
   const f = fetchPrivately({ fetch: fetchExposeHeaders() });
-  // Nginx is configured to not expose headers for this resource but node-fetch doesn't
+  // The server is configured to not expose headers for this resource but node-fetch doesn't
   // enforce CORS. The fetch implementation used sets the headers to simulate the behaviour.
   const r = await f('http://localhost:8000/2M.cors.noexpose.dat');
 

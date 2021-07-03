@@ -105,7 +105,7 @@ To run the test suite locally:
 ```bash
 $ yarn
 $ yarn build:data
-$ yarn start:nginx
+$ yarn start:server
 $ yarn test
 ```
 

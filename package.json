@@ -24,10 +24,8 @@
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && tests/unit/runner",
-    "logs:nginx": "docker logs --timestamps --follow \"${npm_package_name}-nginx\"",
-    "start:nginx": "tests/nginx/start",
-    "stop:nginx": "docker stop \"${npm_package_name}-nginx\"",
-    "restart:nginx": "yarn stop:nginx && yarn start:nginx",
+    "start:server": "cd tests/ && caddy start",
+    "stop:server": "cd tests/ && caddy stop",
     "curl:headers": "curl --silent --dump-header /dev/fd/1 --output /dev/null"
   },
   "devDependencies": {

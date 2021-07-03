@@ -4,34 +4,32 @@ set -e
 set -u
 set -o pipefail
 
-if ! command -v docker &> /dev/null
-then
-  printf '%s\n' 'Docker is required but missing' 1>&2
-  exit 1
-fi
-
-wordlist_image=$(docker build --quiet - <<EOF
-FROM ubuntu:20.04
-RUN apt-get update && apt-get -qqq install wcanadian-huge
-EOF
-)
-
 find . -maxdepth 1 -type f -name '*.dat' -delete
 
 for size in 32 64 1M 2M
 do
   printf '%s\n' "# Write ${size}.dat"
-  docker run --rm --volume "$PWD:/app" --workdir '/app' ubuntu:20.04 \
-    dd if=/dev/zero "of=${size}.dat" "bs=${size}" count=1
+
+  if [[ "$OSTYPE" == "darwin"* ]]
+  then
+    bs="${size,,}"
+  else
+    bs="${size}"
+  fi
+
+  dd if=/dev/zero "of=${size}.dat" "bs=${bs}" count=1 &> /dev/null
   cp "${size}.dat" "${size}.cors.dat"
   cp "${size}.dat" "${size}.cors.nobytes.dat"
   cp "${size}.dat" "${size}.cors.noexpose.dat"
   cp "${size}.dat" "${size}.nobytes.dat"
-
-  docker run --rm --volume "$PWD:/app" --workdir '/app' "$wordlist_image" \
-    cp /usr/share/dict/canadian-english-huge words.dat
-  cp "words.dat" "words.cors.dat"
-  cp "words.dat" "words.cors.nobytes.dat"
-  cp "words.dat" "words.cors.noexpose.dat"
-  cp "words.dat" "words.nobytes.dat"
 done
+
+printf '%s\n' "# Write words.dat"
+curl -sSLO 'http://mirrors.kernel.org/ubuntu/pool/universe/s/scowl/wcanadian-huge_2018.04.16-1_all.deb'
+declare -r deb_files=$(ar vx wcanadian-huge_2018.04.16-1_all.deb | awk '{ print $3 }')
+tar xfO data.tar.xz './usr/share/dict/canadian-english-huge' > words.dat
+rm $deb_files wcanadian-huge_2018.04.16-1_all.deb
+cp "words.dat" "words.cors.dat"
+cp "words.dat" "words.cors.nobytes.dat"
+cp "words.dat" "words.cors.noexpose.dat"
+cp "words.dat" "words.nobytes.dat"
