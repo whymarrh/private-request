@@ -1,3 +1,4 @@
+<!--suppress CheckImageSize this is a @2x image-->
 <img alt="Private Request" src="docs/images/logo/512x256/dark@2x.png" width="512px">
 
 A `fetch` wrapper that hampers traffic analysis, based on Signal's [_Expanding Signal GIF search_][signal-and-giphy] article.
