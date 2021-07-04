@@ -22,9 +22,15 @@
         crossorigin="anonymous"></script>
 
 <script>
+  /**
+   * SystemJS Core
+   * @typedef {Object} System
+   */
   (function () {
     const endsWithFileExtension = /\/?\.[a-zA-Z]{2,}$/u;
+    // noinspection JSPotentiallyInvalidConstructorUsage
     const originalResolve = System.constructor.prototype.resolve;
+    // noinspection JSPotentiallyInvalidConstructorUsage
     System.constructor.prototype.resolve = function () {
       // Apply original resolve to make sure import maps are resolved first
       const url = originalResolve.apply(this, arguments);
@@ -35,6 +41,10 @@
 </script>
 
 <script>
+  /**
+   * QUnit global
+   * @typedef {Object} QUnit
+   */
   QUnit.config.collapse = false;
   QUnit.config.noglobals = true;
   QUnit.config.testTimeout = 30 * 1000;
