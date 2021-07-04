@@ -1,0 +1,43 @@
+http://localhost:8000 {
+	root * fixtures/
+	file_server
+
+	@data path *.dat
+
+	handle @data {
+		@cors path *.cors*
+		route @cors {
+			header {
+				Access-Control-Allow-Origin "*"
+				Access-Control-Allow-Methods "*"
+				Access-Control-Allow-Credentials "true"
+				Access-Control-Allow-Headers "*"
+				Access-Control-Expose-Headers "Accept-Ranges, Content-Range, Content-Length"
+				Access-Control-Max-Age "0"
+			}
+
+			@options method OPTIONS
+			handle @options {
+				respond 204
+			}
+		}
+
+		# Don't properly expose headers for CORS
+		@noexpose path *.noexpose*
+		route @noexpose {
+			header -Access-Control-Expose-Headers
+		}
+
+		# Disallow range requests on these resources
+		@nobytes path *.nobytes*
+		route @nobytes {
+			header -Accept-Ranges
+			request_header -Range
+		}
+	}
+}
+
+http://localhost:8001 {
+	root * e2e/
+	file_server
+}

@@ -7,6 +7,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Install Caddy
+        run: .github/scripts/install-caddy
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
@@ -14,7 +16,7 @@ jobs:
       - name: Run tests
         run: |
           yarn
-          ( cd tests/fixtures/ && ./mkdat )
-          yarn start:nginx
+          yarn build:data
+          yarn start:server
           yarn test
-          yarn stop:nginx
+          yarn stop:server
