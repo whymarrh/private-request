@@ -52,7 +52,7 @@ function assertIsNonEmptyString(val: any): asserts val is string {
 export function parseByteContentRange(value: string): ByteContentRange | undefined {
   assertIsNonNullable(value);
 
-  const regExp = /^bytes (\d+)-(\d+)\/((?:\d+)|(?:[*]))$/u;
+  const regExp = /^bytes (\d+)-(\d+)\/(\d+|[*])$/u;
   const [, ...parts] = value.match(regExp) ?? [];
   const [first, last, completeSize] = parts.map((n) => {
     const parsed = parseInt(n, 10);
@@ -303,7 +303,7 @@ export function parseIntegrity(integrity: string): [IntegrityHashAlgo, string] |
   // base64-value       = <base64-value production from [Content Security Policy Level 2, section 4.2]>
   // hash-expression    = hash-algo "-" base64-value
   // — https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute
-  const regExp = /^(sha(?:(?:256)|(?:384)|(?:512)))-([a-zA-Z0-9+/]+[=]{0,2})$/u;
+  const regExp = /^(sha(?:256|384|512))-([a-zA-Z0-9+/]+[=]{0,2})$/u;
   const [, algorithm, digest] = integrity.match(regExp) ?? [];
 
   if (!isDefined(algorithm) || !isDefined(digest)) {
