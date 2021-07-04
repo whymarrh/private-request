@@ -19,7 +19,7 @@ const tests = [
 
 tests.forEach(([contentLength, expectedSegmentSize]) => {
   test(`getSegmentSize(${contentLength}) is ${expectedSegmentSize}`, async () => {
-    assert.equal(getSegmentSize(contentLength), expectedSegmentSize);
+    assert.equal(getSegmentSize(contentLength!), expectedSegmentSize);
   });
 });
 
