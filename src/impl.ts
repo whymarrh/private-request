@@ -1,8 +1,4 @@
-import type {
-  IntegrityHashAlgo,
-  HashFunction,
-  IntegrityHashFunctions,
-} from '#src/crypto';
+import type { IntegrityHashAlgo, HashFunction, IntegrityHashFunctions } from "#src/crypto";
 import type {
   RequestRange,
   ResponseSegment,
@@ -11,17 +7,13 @@ import type {
   UsableOrUnusable,
   PossibleResponseSegment,
   ByteContentRange,
-} from '#src/responses';
+} from "#src/responses";
 
-import Bytes from '#src/bytes';
+import Bytes from "#src/bytes";
 
-interface FetchImplementation {
-  (input: RequestInfo, init?: RequestInit): Promise<Response>;
-}
+type FetchImplementation = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
-interface RandomNumberGenerator {
-  (min: number, max: number): Promise<number>;
-}
+type RandomNumberGenerator = (min: number, max: number) => Promise<number>;
 
 function isDefined<T>(val: T): val is NonNullable<T> {
   return val !== undefined && val !== null;
@@ -44,7 +36,7 @@ function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
  * @param val - the value to check
  */
 function assertIsNonEmptyString(val: any): asserts val is string {
-  if (typeof val !== 'string' || val.trim().length === 0) {
+  if (typeof val !== "string" || val.trim().length === 0) {
     throw new TypeError(`Expected non-empty string, but received '${val}'`);
   }
 }
@@ -56,9 +48,7 @@ export function parseByteContentRange(value: string): ByteContentRange | undefin
   const [, ...parts] = value.match(regExp) ?? [];
   const [first, last, completeSize] = parts.map((n) => {
     const parsed = parseInt(n, 10);
-    return Number.isFinite(parsed)
-      ? parsed
-      : undefined;
+    return Number.isFinite(parsed) ? parsed : undefined;
   });
 
   if (!isDefined(first) || !isDefined(last)) {
@@ -84,7 +74,7 @@ export function parseByteContentRange(value: string): ByteContentRange | undefin
 async function fetchUnusableResource(fetch: FetchImplementation, input: RequestInfo): Promise<Unusable<Response>> {
   const response = await fetch(input);
   return {
-    type: 'unusable',
+    type: "unusable",
     value: response,
   };
 }
@@ -93,23 +83,22 @@ async function fetchSegment(
   fetch: FetchImplementation,
   input: RequestInfo,
   segment: RequestRange,
-): Promise<PossibleResponseSegment<ResponseSegment>>
-{
+): Promise<PossibleResponseSegment<ResponseSegment>> {
   const response = await fetch(input, {
     headers: {
-      'Range': `bytes=${segment.start}-${segment.end}`,
+      Range: `bytes=${segment.start}-${segment.end}`,
     },
   });
 
   if (response.status !== 206) {
     return {
-      type: 'unusable',
+      type: "unusable",
       value: response,
     };
   }
 
   return {
-    type: 'usable',
+    type: "usable",
     value: {
       response,
       range: segment,
@@ -121,21 +110,22 @@ export async function fetchInitialSegment(
   fetch: FetchImplementation,
   input: RequestInfo,
   rand: RandomNumberGenerator,
-): Promise<PossibleResponseSegment<InitialResponseSegment>>
-{
-  const segmentLength = Bytes.kibiBytes(1) + await rand(0, Bytes.kibiBytes(1));
+): Promise<PossibleResponseSegment<InitialResponseSegment>> {
+  const segmentLength = Bytes.kibiBytes(1) + (await rand(0, Bytes.kibiBytes(1)));
   const s = await fetchSegment(fetch, input, {
     start: 0,
     end: segmentLength - 1,
     redundant: 0,
   });
 
-  if (s.type === 'unusable') {
+  if (s.type === "unusable") {
     return s;
   }
 
-  const { value: { response } } = s;
-  const contentRange = response.headers.get('Content-Range');
+  const {
+    value: { response },
+  } = s;
+  const contentRange = response.headers.get("Content-Range");
 
   if (!contentRange) {
     return fetchUnusableResource(fetch, input);
@@ -154,7 +144,7 @@ export async function fetchInitialSegment(
   }
 
   return {
-    type: 'usable',
+    type: "usable",
     value: {
       response,
       totalSize: completeSize,
@@ -178,8 +168,8 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
   assertIsNonNullable(contentLength);
   assertIsNonNullable(segmentSize);
   assertIsNonNullable(segmentStart);
-  assert(segmentSize <= contentLength, 'segmentSize must be less than or equal to contentLength');
-  assert(segmentStart < contentLength, 'segmentStart must be less than contentLength');
+  assert(segmentSize <= contentLength, "segmentSize must be less than or equal to contentLength");
+  assert(segmentStart < contentLength, "segmentStart must be less than contentLength");
 
   return Math.max(segmentSize - (contentLength - segmentStart), 0);
 }
@@ -198,11 +188,11 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
  */
 export function getSegmentSize(contentLength: number): number {
   const availableSegmentSizes = [
-    Bytes.mebiBytes(  1),
+    Bytes.mebiBytes(1),
     Bytes.kibiBytes(500),
     Bytes.kibiBytes(100),
-    Bytes.kibiBytes( 50),
-    Bytes.kibiBytes( 10),
+    Bytes.kibiBytes(50),
+    Bytes.kibiBytes(10),
   ];
 
   for (const segmentSize of availableSegmentSizes) {
@@ -218,10 +208,10 @@ export function getSegmentRanges(contentLength: number, segmentSize: number, sta
   assertIsNonNullable(contentLength);
   assertIsNonNullable(startIndex);
   assertIsNonNullable(segmentSize);
-  assert(startIndex < contentLength, 'startIndex must be less than contentLength');
-  assert(segmentSize <= contentLength, 'segmentSize must be less than or equal to contentLength');
+  assert(startIndex < contentLength, "startIndex must be less than contentLength");
+  assert(segmentSize <= contentLength, "segmentSize must be less than or equal to contentLength");
 
-  let ranges: RequestRange[] = [];
+  const ranges: RequestRange[] = [];
   let segmentStart = startIndex;
   while (segmentStart < contentLength) {
     const redundant = getRedundantByteCount(contentLength, segmentSize, segmentStart);
@@ -244,22 +234,21 @@ export async function fetchSegments(
   fetch: FetchImplementation,
   input: RequestInfo,
   rand: RandomNumberGenerator,
-): Promise<UsableOrUnusable<ResponseSegment[], Response>>
-{
+): Promise<UsableOrUnusable<ResponseSegment[], Response>> {
   const initialResponse = await fetchInitialSegment(fetch, input, rand);
 
-  if (initialResponse.type === 'unusable') {
+  if (initialResponse.type === "unusable") {
     return initialResponse;
   }
 
-  const { value: { totalSize, range } } = initialResponse;
+  const {
+    value: { totalSize, range },
+  } = initialResponse;
 
-  if (range.end === (totalSize - 1)) {
+  if (range.end === totalSize - 1) {
     return {
-      type: 'usable',
-      value: [
-        initialResponse.value,
-      ],
+      type: "usable",
+      value: [initialResponse.value],
     };
   }
 
@@ -267,11 +256,13 @@ export async function fetchSegments(
   for (const segmentRange of getSegmentRanges(totalSize, getSegmentSize(totalSize), range.end + 1)) {
     const segmentResponse = await fetchSegment(fetch, input, segmentRange);
 
-    if (segmentResponse.type === 'unusable') {
+    if (segmentResponse.type === "unusable") {
       return segmentResponse;
     }
 
-    const { value: { response, range } } = segmentResponse;
+    const {
+      value: { response, range },
+    } = segmentResponse;
     segments.push({
       response,
       range,
@@ -279,7 +270,7 @@ export async function fetchSegments(
   }
 
   return {
-    type: 'usable',
+    type: "usable",
     value: segments,
   };
 }
@@ -310,10 +301,7 @@ export function parseIntegrity(integrity: string): [IntegrityHashAlgo, string] |
     return undefined;
   }
 
-  return [
-    algorithm as IntegrityHashAlgo,
-    digest,
-  ];
+  return [algorithm as IntegrityHashAlgo, digest];
 }
 
 /**
@@ -330,7 +318,7 @@ export async function digest(hash: HashFunction, ...args: Parameters<HashFunctio
   const arrayBuffer = await hash(...args);
   const bytes = new Uint8Array(arrayBuffer);
 
-  let s = '';
+  let s = "";
   for (const byte of bytes) {
     s += String.fromCharCode(byte);
   }
@@ -338,7 +326,11 @@ export async function digest(hash: HashFunction, ...args: Parameters<HashFunctio
   return btoa(s);
 }
 
-export async function verifyIntegrity(data: Uint8Array<ArrayBuffer>, integrity: string | undefined, fns: IntegrityHashFunctions) {
+export async function verifyIntegrity(
+  data: Uint8Array<ArrayBuffer>,
+  integrity: string | undefined,
+  fns: IntegrityHashFunctions,
+) {
   if (!integrity) {
     return;
   }
@@ -346,12 +338,12 @@ export async function verifyIntegrity(data: Uint8Array<ArrayBuffer>, integrity: 
   const parsedIntegrity = parseIntegrity(integrity);
 
   if (!parsedIntegrity) {
-    throw new TypeError('failed to fetch');
+    throw new TypeError("failed to fetch");
   }
 
-  const [ algorithm, expectedDigest ] = parsedIntegrity;
+  const [algorithm, expectedDigest] = parsedIntegrity;
   const actualDigest = await digest(fns[algorithm], data);
   if (actualDigest !== expectedDigest) {
-    throw new TypeError('failed to fetch');
+    throw new TypeError("failed to fetch");
   }
 }

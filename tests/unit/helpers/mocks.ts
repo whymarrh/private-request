@@ -1,19 +1,16 @@
-import fetch from 'node-fetch';
-import { allLowerCase } from '#helpers/index';
+import fetch from "node-fetch";
+import { allLowerCase } from "#helpers/index";
 
-const CORS_FORBIDDEN_RESPONSE_HEADERS = allLowerCase([
-  'set-cookie',
-  'set-cookie2',
-]);
+const CORS_FORBIDDEN_RESPONSE_HEADERS = allLowerCase(["set-cookie", "set-cookie2"]);
 
 const CORS_SAFELISTED_HEADERS = allLowerCase([
-  'cache-control',
-  'content-language',
-  'content-length',
-  'content-type',
-  'expires',
-  'last-modified',
-  'pragma',
+  "cache-control",
+  "content-language",
+  "content-length",
+  "content-type",
+  "expires",
+  "last-modified",
+  "pragma",
 ]);
 
 /**
@@ -29,7 +26,7 @@ const CORS_SAFELISTED_HEADERS = allLowerCase([
 export function fetchExposeHeaders(exposedHeaders: string[] = []) {
   const _exposedHeaders = allLowerCase(exposedHeaders).filter((e) => !CORS_FORBIDDEN_RESPONSE_HEADERS.includes(e));
 
-  return async function (input: RequestInfo, init?: RequestInit): Promise<Response> {
+  return async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const res = await fetch(input, init);
 
     for (const header of res.headers.keys()) {
@@ -41,5 +38,5 @@ export function fetchExposeHeaders(exposedHeaders: string[] = []) {
     }
 
     return res;
-  }
+  };
 }

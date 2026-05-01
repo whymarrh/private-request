@@ -1,15 +1,11 @@
-import type { DigestData, HashFunctionOptions } from '#src/crypto';
-import type { ResponseSegment, InitialResponseSegment } from '#src/responses';
+import type { DigestData, HashFunctionOptions } from "#src/crypto";
+import type { ResponseSegment, InitialResponseSegment } from "#src/responses";
 
-import { fetchSegments, verifyIntegrity } from '#src/impl';
+import { fetchSegments, verifyIntegrity } from "#src/impl";
 
-interface FetchImplementation {
-  (input: RequestInfo, init?: RequestInit): Promise<Response>;
-}
+type FetchImplementation = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
-interface RandomNumberGenerator {
-  (min: number, max: number): Promise<number>;
-}
+type RandomNumberGenerator = (min: number, max: number) => Promise<number>;
 
 interface PrivateRequestOptions {
   fetch?: FetchImplementation;
@@ -23,21 +19,21 @@ const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
  *
  * @param data - the data to digest
  */
-const sha256Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-256', data);
+const sha256Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-256", data);
 
 /**
  * Returns a SHA-384 digest of the given data
  *
  * @param data - the data to digest
  */
-const sha384Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-384', data);
+const sha384Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-384", data);
 
 /**
  * Returns a SHA-512 digest of the given data
  *
  * @param data - the data to digest
  */
-const sha512Browser = (data: DigestData) => window.crypto.subtle.digest('SHA-512', data);
+const sha512Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-512", data);
 
 export default function (options: PrivateRequestOptions & HashFunctionOptions = {}): FetchImplementation {
   const {
@@ -48,12 +44,17 @@ export default function (options: PrivateRequestOptions & HashFunctionOptions = 
     sha512 = sha512Browser,
   } = options;
   return async function fetchPrivately(input: RequestInfo, init?: RequestInit): Promise<Response> {
-    if (init && (init.method !== undefined && init.method !== 'GET' || init.headers || (init.mode !== undefined && init.mode !== 'cors'))) {
+    if (
+      init &&
+      ((init.method !== undefined && init.method !== "GET") ||
+        init.headers ||
+        (init.mode !== undefined && init.mode !== "cors"))
+    ) {
       return fetch(input, init);
     }
 
     const possibleSegments = await fetchSegments(fetch, input, rng);
-    if (possibleSegments.type === 'unusable') {
+    if (possibleSegments.type === "unusable") {
       return possibleSegments.value;
     }
 
@@ -72,11 +73,7 @@ async function mergeSegmentBodies(segments: ResponseSegment[]) {
   for (const segment of segments) {
     const redundantBytes = segment.range.redundant;
     const arrayBuffer = await segment.response.arrayBuffer();
-    const segmentBytes = new Uint8Array(
-      redundantBytes === 0
-        ? arrayBuffer
-        : arrayBuffer.slice(redundantBytes)
-    );
+    const segmentBytes = new Uint8Array(redundantBytes === 0 ? arrayBuffer : arrayBuffer.slice(redundantBytes));
     bytes.set(segmentBytes, segment.range.start + redundantBytes);
   }
 
@@ -85,11 +82,11 @@ async function mergeSegmentBodies(segments: ResponseSegment[]) {
 
 function copyResponseInit(init: ResponseInit, body: Uint8Array): ResponseInit {
   const headers = new Headers(init.headers);
-  headers.set('Content-Length', body.byteLength.toString());
+  headers.set("Content-Length", body.byteLength.toString());
 
   return {
     status: 200,
-    statusText: 'OK',
+    statusText: "OK",
     headers,
   };
 }

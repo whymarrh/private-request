@@ -1,8 +1,8 @@
-import { strict as assert } from 'assert';
-import crypto from 'crypto';
-import path from 'path';
-import type { Test } from 'baretest';
-import fetch from 'node-fetch';
+import { strict as assert } from "assert";
+import crypto from "crypto";
+import path from "path";
+import type { Test } from "baretest";
+import fetch from "node-fetch";
 
 export function allLowerCase(strings: string[] = []) {
   return strings.map((s) => s.toLowerCase());
@@ -14,14 +14,14 @@ export function filename(s: string) {
 }
 
 export async function run(test: Test) {
-  if (!await test.run()) {
+  if (!(await test.run())) {
     process.exit(1);
   }
 }
 
 export function setupGlobals(test: Test) {
   test.before(async () => {
-    // @ts-ignore
+    // @ts-expect-error
     const { Headers, Response } = fetch;
     globalThis.Headers ??= Headers;
     globalThis.Response ??= Response;
@@ -43,7 +43,10 @@ export type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
  * @param data - the data to digest
  */
 export const sha256 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto.createHash('sha256').update(data as any).digest();
+  const buf = crypto
+    .createHash("sha256")
+    .update(data as any)
+    .digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };
 
@@ -53,7 +56,10 @@ export const sha256 = async (data: DigestData): Promise<ArrayBuffer> => {
  * @param data - the data to digest
  */
 export const sha384 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto.createHash('sha384').update(data as any).digest();
+  const buf = crypto
+    .createHash("sha384")
+    .update(data as any)
+    .digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };
 
@@ -63,6 +69,9 @@ export const sha384 = async (data: DigestData): Promise<ArrayBuffer> => {
  * @param data - the data to digest
  */
 export const sha512 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto.createHash('sha512').update(data as any).digest();
+  const buf = crypto
+    .createHash("sha512")
+    .update(data as any)
+    .digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };

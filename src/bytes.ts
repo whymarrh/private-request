@@ -15,6 +15,6 @@ export default class Bytes {
   }
 
   static mebiBytes(n: number): number {
-    return n * this.kibiBytes(1024);
+    return n * Bytes.kibiBytes(1024);
   }
 }
