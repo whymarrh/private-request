@@ -28,11 +28,13 @@
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && tests/unit/runner",
+    "test:wpt": "yarn build:e2e && playwright test --config tests/wpt/playwright.config.ts",
     "start:server": "cd tests/ && caddy start",
     "stop:server": "cd tests/ && caddy stop",
     "curl:headers": "curl --silent --dump-header /dev/fd/1 --output /dev/null"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^22.0.0",
     "baretest": "^2.0.0",
     "node-fetch": "^2.6.1",
