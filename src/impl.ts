@@ -77,7 +77,7 @@ export function parseByteContentRange(value: string): ByteContentRange | undefin
   return {
     first,
     last,
-    completeSize,
+    ...(isDefined(completeSize) && { completeSize }),
   };
 }
 
