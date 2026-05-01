@@ -10,9 +10,9 @@ jobs:
       - name: Install Caddy
         run: .github/scripts/install-caddy
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version-file: '.nvmrc'
       - name: Run tests
         run: |
           yarn
