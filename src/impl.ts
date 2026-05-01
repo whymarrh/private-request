@@ -338,7 +338,7 @@ export async function digest(hash: HashFunction, ...args: Parameters<HashFunctio
   return btoa(s);
 }
 
-export async function verifyIntegrity(data: Uint8Array, integrity: string | undefined, fns: IntegrityHashFunctions) {
+export async function verifyIntegrity(data: Uint8Array<ArrayBuffer>, integrity: string | undefined, fns: IntegrityHashFunctions) {
   if (!integrity) {
     return;
   }

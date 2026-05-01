@@ -42,21 +42,27 @@ export type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
  *
  * @param data - the data to digest
  */
-export const sha256 = async (data: DigestData): Promise<ArrayBuffer> =>
-  crypto.createHash('sha256').update(data as any).digest();
+export const sha256 = async (data: DigestData): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash('sha256').update(data as any).digest();
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+};
 
 /**
  * Returns a SHA-384 digest of the given data
  *
  * @param data - the data to digest
  */
-export const sha384 = async (data: DigestData): Promise<ArrayBuffer> =>
-  crypto.createHash('sha384').update(data as any).digest();
+export const sha384 = async (data: DigestData): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash('sha384').update(data as any).digest();
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+};
 
 /**
  * Returns a SHA-512 digest of the given data
  *
  * @param data - the data to digest
  */
-export const sha512 = async (data: DigestData): Promise<ArrayBuffer> =>
-  crypto.createHash('sha512').update(data as any).digest();
+export const sha512 = async (data: DigestData): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash('sha512').update(data as any).digest();
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+};
