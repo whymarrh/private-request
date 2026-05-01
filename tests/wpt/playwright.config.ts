@@ -2,15 +2,15 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './',
-  fullyParallel: false,
+  fullyParallel: true,
   retries: 0,
   outputDir: './results',
   reporter: [
-    ['list'],
+    ['list', { printSteps: true }],
     ['html', { outputFolder: './report', open: 'never' }],
     ['json', { outputFile: './results/results.json' }],
   ],
-  timeout: 45 * 1000,
+  timeout: 60_000,
   use: {
     baseURL: 'https://wpt.live',
     trace: 'retain-on-failure',

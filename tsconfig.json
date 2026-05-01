@@ -3,6 +3,7 @@
     /* Basic Options */
     "incremental": true,
     "target": "ES2022",
+    "lib": ["ES2024", "DOM"],
     "module": "NodeNext",
     "declaration": true,
 

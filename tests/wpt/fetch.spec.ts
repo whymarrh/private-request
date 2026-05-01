@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Page, Browser } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,10 +8,19 @@ import { WPT_FETCH_TESTS } from './config.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BUNDLE_PATH = path.resolve(__dirname, '../e2e/scripts/private-request.js');
-const TEST_TIMEOUT_MS = 5000;
+const TEST_TIMEOUT_MS = 60_000;
 
+const WebPlatformTestStatusCode = {
+  PASS: 0,
+  FAIL: 1,
+  TIMEOUT: 2,
+  NOTRUN: 3,
+  PRECONDITION_FAILED: 4,
+} as const;
+
+type WebPlatformTestStatusCode = (typeof WebPlatformTestStatusCode)[keyof typeof WebPlatformTestStatusCode];
 type WebPlatformTestStatus = {
-  status: number;
+  status: WebPlatformTestStatusCode;
   message: string | null;
   stack: string | null;
 };
@@ -49,31 +58,15 @@ async function injectLibrary(page: Page): Promise<void> {
   `);
 }
 
-async function runWptTests(page: Page, testPath: string): Promise<WebPlatfomTest[]> {
-  let resolve: (results: WebPlatfomTest[]) => void;
-  let reject: (reason: unknown) => void;
-  const completed = new Promise<WebPlatfomTest[]>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
+async function runWptTests(browser: Browser, testPath: string, fn?: (page: Page) => Promise<void>): Promise<{ tests: WebPlatfomTest[]; status: WebPlatformTestStatus }> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  const { promise, resolve } = Promise.withResolvers<{ tests: WebPlatfomTest[]; status: WebPlatformTestStatus }>();
 
   await page.exposeFunction('__wptPostMessage', (data: WptMessage) => {
-    console.log(`[wpt] postMessage: ${JSON.stringify(data)}`);
     if (data.type === 'complete') {
-      switch (data.status.status) {
-        case 0:
-          resolve(data.tests);
-          break;
-        case 1:
-          reject(new Error(data.status.message || 'Test failed'));
-          break;
-        case 2:
-          reject(new Error('Test harness timeout'));
-          break;
-        default:
-          reject(new Error(`Unknown test status: ${data.status}`));
-          break;
-      }
+      resolve({ tests: data.tests, status: data.status });
     }
   });
 
@@ -89,6 +82,7 @@ async function runWptTests(page: Page, testPath: string): Promise<WebPlatfomTest
     });
   });
 
+  await fn?.(page);
   const response = await page.goto(`https://wpt.live/fetch/${testPath}`, {
     timeout: 30000,
   });
@@ -97,7 +91,7 @@ async function runWptTests(page: Page, testPath: string): Promise<WebPlatfomTest
     throw new Error(`Failed to load test page: ${response?.status()}`);
   }
 
-  return completed
+  return promise;
 }
 
 function getTagsFromPath(testPath: string): string[] {
@@ -106,10 +100,6 @@ function getTagsFromPath(testPath: string): string[] {
 }
 
 test.describe('Web Platform Tests', () => {
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await injectLibrary(page);
-  });
-
   for (const testPath of WPT_FETCH_TESTS) {
     const fullUrl = `https://wpt.live/fetch/${testPath}`;
     const tags = getTagsFromPath(testPath);
@@ -117,10 +107,47 @@ test.describe('Web Platform Tests', () => {
     test(testPath.replace(/\.html$/, ''), {
       tag: tags,
       annotation: { type: 'wpt', description: fullUrl },
-    }, async ({ page }: { page: Page }) => {
+    }, async ({ browser }: { browser: Browser }) => {
       test.setTimeout(TEST_TIMEOUT_MS);
-      const results = await runWptTests(page, testPath);
-      expect(results.length).toBeGreaterThan(0);
+
+      const originalResults = await test.step('Collect built-in fetch baseline results', async (step) => {
+        const originalResults = await runWptTests(browser, testPath);
+        expect(originalResults.tests.length).toBeGreaterThan(0);
+        const originalResultsMap = new Map<string, number>();
+        for (const result of originalResults.tests) {
+          originalResultsMap.set(result.name, result.status);
+        }
+        step.attach('baseline-results.json', {
+          body: JSON.stringify(originalResults, null, 2),
+          contentType: 'application/json',
+        });
+        return originalResultsMap;
+      });
+
+      const wrappedResults = await runWptTests(browser, testPath, async (page) => {
+        await injectLibrary(page);
+      });
+      expect(wrappedResults.tests.length).toBe(originalResults.size);
+
+      for (const result of wrappedResults.tests) {
+        await test.step(result.name, async (step) => {
+          step.attach(`result-${result.name.replace(/ /g, '-').replace(/[^a-zA-Z0-9\-]/g, '')}.json`, {
+            body: JSON.stringify(result, null, 2),
+            contentType: 'application/json',
+          });
+          if (result.status !== WebPlatformTestStatusCode.PASS) {
+            const originalStatus = originalResults.get(result.name);
+            step.skip(result.status === WebPlatformTestStatusCode.NOTRUN, 'not run');
+            step.skip(
+              originalStatus === WebPlatformTestStatusCode.FAIL || originalStatus === WebPlatformTestStatusCode.TIMEOUT || originalStatus === WebPlatformTestStatusCode.NOTRUN,
+              'failed baseline',
+            );
+            if (result.status !== originalStatus) {
+              throw new Error(`'${result.name}' was ${originalStatus} but is ${result.status}`);
+            }
+          }
+        });
+      }
     });
   }
 });
