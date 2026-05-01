@@ -10,7 +10,6 @@ const test = baretest(filename(import.meta.url));
 setupGlobals(test);
 
 test("throws on non-string and empty values", async () => {
-  // @ts-expect-error
   assert.throws(() => parseIntegrity(""));
   // @ts-expect-error
   assert.throws(() => parseIntegrity(undefined));

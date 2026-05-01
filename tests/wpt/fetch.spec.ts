@@ -3,7 +3,7 @@ import type { Page, Browser } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { WPT_FETCH_TESTS } from "./config.js";
+import { WPT_FETCH_TESTS as TESTS } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -104,7 +104,8 @@ function getTagsFromPath(testPath: string): string[] {
 }
 
 test.describe("Web Platform Tests", () => {
-  for (const testPath of WPT_FETCH_TESTS) {
+  for (const t of TESTS) {
+    const testPath = typeof t === "string" ? t : t.path;
     const fullUrl = `https://wpt.live/fetch/${testPath}`;
     const tags = getTagsFromPath(testPath);
 
@@ -116,6 +117,7 @@ test.describe("Web Platform Tests", () => {
       },
       async ({ browser }: { browser: Browser }) => {
         test.setTimeout(TEST_TIMEOUT_MS);
+        test.slow(typeof t === "object" && t.slow);
 
         const originalResults = await test.step("Collect built-in fetch baseline results", async (step) => {
           const originalResults = await runWptTests(browser, testPath);

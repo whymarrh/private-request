@@ -2,8 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./",
+  testMatch: "*.spec.ts",
   fullyParallel: true,
-  retries: 0,
+  retries: 1,
   outputDir: "./results",
   reporter: [
     ["list", { printSteps: true }],
@@ -14,7 +15,7 @@ export default defineConfig({
   use: {
     baseURL: "https://wpt.live",
     trace: "retain-on-failure",
-    headless: false,
+    headless: true,
   },
   projects: [
     {

@@ -3,7 +3,7 @@
     /* Basic Options */
     "incremental": true,
     "target": "ES2022",
-    "lib": ["ES2024", "DOM"],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "declaration": true,
 
