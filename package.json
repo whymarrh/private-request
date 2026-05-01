@@ -24,7 +24,7 @@
   "scripts": {
     "prepublishOnly": "yarn build:clean",
     "build": "tsc --project .",
-    "build:e2e": "tsc --project tsconfig.browser.json",
+    "build:e2e": "tools/esbuild-v0.27.1 && tools/esbuild src/index.ts --bundle --format=iife --global-name=privateRequest --outfile=tests/e2e/scripts/private-request.js",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && tests/unit/runner",

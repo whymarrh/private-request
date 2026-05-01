@@ -11,34 +11,10 @@
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
 
+<script src="./scripts/private-request.js"></script>
 <script src="https://code.jquery.com/qunit/qunit-2.10.1.js"
         integrity="sha384-K3DOC8gn5XrAQlXvHOi+LAFrogH0NeEjHiUfH52hFu8pbeSK6WUs5bk8W0m7KI05"
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
-        integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg=="
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/6.3.3/system.min.js"
-        integrity="sha512-D4dEZGVG8wYcMUc3OorJs8hASvvUt39O+vbg+KPx4QwyrfMzNz8pZ2LLQ6ICqeHVRcI4w059BV9v1sOOMq9aFQ=="
-        crossorigin="anonymous"></script>
-
-<script>
-  /**
-   * SystemJS Core
-   * @typedef {Object} System
-   */
-  (function () {
-    const endsWithFileExtension = /\/?\.[a-zA-Z]{2,}$/u;
-    // noinspection JSPotentiallyInvalidConstructorUsage
-    const originalResolve = System.constructor.prototype.resolve;
-    // noinspection JSPotentiallyInvalidConstructorUsage
-    System.constructor.prototype.resolve = function () {
-      // Apply original resolve to make sure import maps are resolved first
-      const url = originalResolve.apply(this, arguments);
-      // Append .js file extension if URL is missing a file extension
-      return endsWithFileExtension.test(url) ? url : url + '.js';
-    };
-  })();
-</script>
 
 <script>
   /**
@@ -49,7 +25,7 @@
   QUnit.config.noglobals = true;
   QUnit.config.testTimeout = 30 * 1000;
   QUnit.module('fetch', async function fetchModule() {
-    const { default: fetchPrivately } = await System.import('./scripts/index.js');
+    const { default: fetchPrivately } = privateRequest;
     QUnit.test('fetches a 2M resource', async function test(assert) {
       const f = fetchPrivately({ fetch });
       const r = await f('http://localhost:8000/2M.cors.dat');
