@@ -1,4 +1,4 @@
-declare module 'baretest' {
+declare module "baretest" {
   export interface Test {
     (name: string, fn: () => Promise<void>): void;
     run(): Promise<boolean>;

@@ -7,7 +7,7 @@
  * > Conformant user agents MUST support the SHA-256, SHA-384, and SHA-512 cryptographic hash functions for
  * > use as part of a request’s integrity metadata and MAY support additional hash functions.
  */
-export type IntegrityHashAlgo = 'sha256' | 'sha384' | 'sha512';
+export type IntegrityHashAlgo = "sha256" | "sha384" | "sha512";
 
 /**
  * Represents data for a hash function

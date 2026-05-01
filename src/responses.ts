@@ -34,7 +34,7 @@ export interface InitialResponseSegment extends ResponseSegment {
  * Represents an unusable value
  */
 export interface Unusable<T> {
-  type: 'unusable';
+  type: "unusable";
   value: T;
 }
 
@@ -42,7 +42,7 @@ export interface Unusable<T> {
  * Represents a usable value
  */
 export interface Usable<T> {
-  type: 'usable';
+  type: "usable";
   value: T;
 }
 
