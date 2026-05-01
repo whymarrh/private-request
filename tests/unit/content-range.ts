@@ -31,10 +31,10 @@ test('handles valid Content-Range header value `bytes 0-31/32`', async () => {
 test('handles valid Content-Range header value with unknown size `bytes 42-99/*`', async () => {
   const res = parseByteContentRange('bytes 42-99/*');
   assert.deepEqual(res, {
-    completeSize: undefined,
     first: 42,
     last: 99,
   });
+  assert.equal(res.completeSize, undefined);
 });
 
 test('handles Content-Range header value with leading zeros `bytes 03-05/09`', async () => {
