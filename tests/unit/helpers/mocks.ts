@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { allLowerCase } from './index';
+import { allLowerCase } from '#helpers/index';
 
 const CORS_FORBIDDEN_RESPONSE_HEADERS = allLowerCase([
   'set-cookie',

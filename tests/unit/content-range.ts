@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
-import { parseByteContentRange } from '../../src/impl';
-import { filename, run } from './helpers';
+import { parseByteContentRange } from '#src/impl';
+import { filename, run } from '#helpers/index';
 
 const test = baretest(filename(import.meta.url));
 

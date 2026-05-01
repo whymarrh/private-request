@@ -1,10 +1,10 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
-import Bytes from '../../src/bytes';
-import { fetchInitialSegment } from '../../src/impl';
-import { assertType, filename, run } from './helpers';
-import { fetchExposeHeaders } from './helpers/mocks';
+import Bytes from '#src/bytes';
+import { fetchInitialSegment } from '#src/impl';
+import { assertType, filename, run } from '#helpers/index';
+import { fetchExposeHeaders } from '#helpers/mocks';
 
 const test = baretest(filename(import.meta.url));
 

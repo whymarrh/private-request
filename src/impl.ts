@@ -2,7 +2,7 @@ import type {
   IntegrityHashAlgo,
   HashFunction,
   IntegrityHashFunctions,
-} from './crypto';
+} from '#src/crypto';
 import type {
   RequestRange,
   ResponseSegment,
@@ -11,9 +11,9 @@ import type {
   UsableOrUnusable,
   PossibleResponseSegment,
   ByteContentRange,
-} from './responses';
+} from '#src/responses';
 
-import Bytes from './bytes';
+import Bytes from '#src/bytes';
 
 interface FetchImplementation {
   (input: RequestInfo, init?: RequestInit): Promise<Response>;

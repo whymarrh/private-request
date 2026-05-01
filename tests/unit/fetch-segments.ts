@@ -1,9 +1,9 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
 import fetch from 'node-fetch';
-import Bytes from '../../src/bytes';
-import { fetchSegments } from '../../src/impl';
-import { assertType, filename, run } from './helpers';
+import Bytes from '#src/bytes';
+import { fetchSegments } from '#src/impl';
+import { assertType, filename, run } from '#helpers/index';
 
 const test = baretest(filename(import.meta.url));
 

@@ -1,8 +1,8 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
-import Bytes from '../../src/bytes';
-import { getRedundantByteCount, getSegmentRanges, getSegmentSize } from '../../src/impl';
-import { filename, run } from './helpers';
+import Bytes from '#src/bytes';
+import { getRedundantByteCount, getSegmentRanges, getSegmentSize } from '#src/impl';
+import { filename, run } from '#helpers/index';
 
 const test = baretest(filename(import.meta.url));
 const tests = [

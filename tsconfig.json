@@ -2,8 +2,8 @@
   "compilerOptions": {
     /* Basic Options */
     "incremental": true,
-    "target": "ES2017",
-    "module": "esnext",
+    "target": "ES2022",
+    "module": "NodeNext",
     "declaration": true,
 
     /* Strict Type-Checking Options */
@@ -25,7 +25,7 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Module Resolution Options */
-    "moduleResolution": "Node",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
 
     "forceConsistentCasingInFileNames": true

@@ -1,7 +1,7 @@
-import type { DigestData, HashFunctionOptions } from './crypto';
-import type { ResponseSegment, InitialResponseSegment } from './responses';
+import type { DigestData, HashFunctionOptions } from '#src/crypto';
+import type { ResponseSegment, InitialResponseSegment } from '#src/responses';
 
-import { fetchSegments, verifyIntegrity } from './impl';
+import { fetchSegments, verifyIntegrity } from '#src/impl';
 
 interface FetchImplementation {
   (input: RequestInfo, init?: RequestInit): Promise<Response>;

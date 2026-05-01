@@ -1,9 +1,9 @@
 import { strict as assert } from 'assert';
 import baretest from 'baretest';
-import fetchPrivately from '../../src';
-import Bytes from '../../src/bytes';
-import { filename, run, setupGlobals } from './helpers';
-import { fetchExposeHeaders } from './helpers/mocks';
+import fetchPrivately from '#src/index';
+import Bytes from '#src/bytes';
+import { filename, run, setupGlobals } from '#helpers/index';
+import { fetchExposeHeaders } from '#helpers/mocks';
 
 const test = baretest(filename(import.meta.url));
 
