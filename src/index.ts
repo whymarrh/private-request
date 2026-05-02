@@ -1,7 +1,6 @@
-import type { DigestData, HashFunctionOptions } from "#src/crypto";
-import type { ResponseSegment, InitialResponseSegment } from "#src/responses";
-
+import type { HashFunctionOptions } from "#src/crypto";
 import { fetchSegments, verifyIntegrity } from "#src/impl";
+import type { InitialResponseSegment, ResponseSegment } from "#src/responses";
 
 type FetchImplementation = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
@@ -19,21 +18,21 @@ const nullRandomNumberGenerator: RandomNumberGenerator = async () => 0;
  *
  * @param data - the data to digest
  */
-const sha256Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-256", data);
+const sha256Browser = (data: BufferSource) => window.crypto.subtle.digest("SHA-256", data);
 
 /**
  * Returns a SHA-384 digest of the given data
  *
  * @param data - the data to digest
  */
-const sha384Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-384", data);
+const sha384Browser = (data: BufferSource) => window.crypto.subtle.digest("SHA-384", data);
 
 /**
  * Returns a SHA-512 digest of the given data
  *
  * @param data - the data to digest
  */
-const sha512Browser = (data: DigestData) => window.crypto.subtle.digest("SHA-512", data);
+const sha512Browser = (data: BufferSource) => window.crypto.subtle.digest("SHA-512", data);
 
 export default function (options: PrivateRequestOptions & HashFunctionOptions = {}): FetchImplementation {
   const {

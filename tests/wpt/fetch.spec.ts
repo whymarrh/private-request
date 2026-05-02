@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
-import type { Page, Browser } from "@playwright/test";
-import * as fs from "fs";
-import * as path from "path";
-import { fileURLToPath } from "url";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { Browser, Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { WPT_FETCH_TESTS as TESTS } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

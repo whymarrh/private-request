@@ -1,5 +1,5 @@
-import { strict as assert } from "assert";
-import crypto from "crypto";
+import { strict as assert } from "node:assert";
+import crypto from "node:crypto";
 
 export function allLowerCase(strings: string[] = []) {
   return strings.map((s) => s.toLowerCase());
@@ -10,20 +10,12 @@ export function assertType(condition: boolean, message?: string | Error): assert
 }
 
 /**
- * Represents data for a hash function
- */
-export type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
-
-/**
  * Returns a SHA-256 digest of the given data
  *
  * @param data - the data to digest
  */
-export const sha256 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto
-    .createHash("sha256")
-    .update(data as any)
-    .digest();
+export const sha256 = async (data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash("sha256").update(data).digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };
 
@@ -32,11 +24,8 @@ export const sha256 = async (data: DigestData): Promise<ArrayBuffer> => {
  *
  * @param data - the data to digest
  */
-export const sha384 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto
-    .createHash("sha384")
-    .update(data as any)
-    .digest();
+export const sha384 = async (data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash("sha384").update(data).digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };
 
@@ -45,10 +34,7 @@ export const sha384 = async (data: DigestData): Promise<ArrayBuffer> => {
  *
  * @param data - the data to digest
  */
-export const sha512 = async (data: DigestData): Promise<ArrayBuffer> => {
-  const buf = crypto
-    .createHash("sha512")
-    .update(data as any)
-    .digest();
+export const sha512 = async (data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> => {
+  const buf = crypto.createHash("sha512").update(data).digest();
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 };

@@ -10,14 +10,9 @@
 export type IntegrityHashAlgo = "sha256" | "sha384" | "sha512";
 
 /**
- * Represents data for a hash function
- */
-export type DigestData = Parameters<typeof window.crypto.subtle.digest>[1];
-
-/**
  * Represents a hash function
  */
-export type HashFunction = (data: DigestData) => Promise<ArrayBuffer>;
+export type HashFunction = (data: Uint8Array<ArrayBuffer>) => Promise<ArrayBuffer>;
 
 /**
  * Represents a set of hash functions for use with Subresource Integrity

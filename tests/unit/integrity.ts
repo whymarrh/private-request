@@ -1,9 +1,9 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 import fetch from "node-fetch";
-import fetchPrivately from "#src/index";
-import { digest, parseIntegrity } from "#src/impl";
 import { sha256, sha384, sha512 } from "#helpers/index";
+import { digest, parseIntegrity } from "#src/impl";
+import fetchPrivately from "#src/index";
 
 test("throws on non-string and empty values", async () => {
   assert.throws(() => parseIntegrity(""));

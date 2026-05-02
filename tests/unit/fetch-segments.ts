@@ -1,9 +1,9 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 import fetch from "node-fetch";
-import Bytes from "#src/bytes";
-import { fetchSegments } from "#src/impl";
 import { assertType } from "#helpers/index";
+import bytes from "#src/bytes";
+import { fetchSegments } from "#src/impl";
 
 const getRandomNumber = async (_: number, __: number) => 0;
 
@@ -18,18 +18,18 @@ test("fetches all segments for a 2M resource when range requests are allowed and
     [
       {
         start: 0,
-        end: Bytes.kibiBytes(1) - 1,
+        end: bytes.kibiBytes(1) - 1,
         redundant: 0,
       },
       {
-        start: Bytes.kibiBytes(1),
-        end: Bytes.kibiBytes(1) + Bytes.mebiBytes(1) - 1,
+        start: bytes.kibiBytes(1),
+        end: bytes.kibiBytes(1) + bytes.mebiBytes(1) - 1,
         redundant: 0,
       },
       {
-        start: Bytes.mebiBytes(1),
-        end: Bytes.mebiBytes(2) - 1,
-        redundant: Bytes.kibiBytes(1),
+        start: bytes.mebiBytes(1),
+        end: bytes.mebiBytes(2) - 1,
+        redundant: bytes.kibiBytes(1),
       },
     ],
   );

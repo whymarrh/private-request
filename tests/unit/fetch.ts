@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 import fetch from "node-fetch";
+import bytes from "#src/bytes";
 import fetchPrivately from "#src/index";
-import Bytes from "#src/bytes";
 
 test("fetches headers for a resource that has an exposed `Accept-Ranges: bytes` header", async () => {
   const f = fetchPrivately({ fetch });
@@ -67,16 +67,16 @@ test("fetches a full 1M resource", async () => {
   const f = fetchPrivately({ fetch });
   const r = await f("http://localhost:8000/1M.cors.dat");
   assert.equal(r.status, 200);
-  assert.equal(r.headers.get("Content-Length"), Bytes.mebiBytes(1).toString(10));
-  assert.equal((await r.arrayBuffer()).byteLength, Bytes.mebiBytes(1));
+  assert.equal(r.headers.get("Content-Length"), bytes.mebiBytes(1).toString(10));
+  assert.equal((await r.arrayBuffer()).byteLength, bytes.mebiBytes(1));
 });
 
 test("fetches a full 2M resource", async () => {
   const f = fetchPrivately({ fetch });
   const r = await f("http://localhost:8000/2M.cors.dat");
   assert.equal(r.status, 200);
-  assert.equal(r.headers.get("Content-Length"), Bytes.mebiBytes(2).toString(10));
-  assert.equal((await r.arrayBuffer()).byteLength, Bytes.mebiBytes(2));
+  assert.equal(r.headers.get("Content-Length"), bytes.mebiBytes(2).toString(10));
+  assert.equal((await r.arrayBuffer()).byteLength, bytes.mebiBytes(2));
 });
 
 test("fails to fetch a non-existent resource", async () => {

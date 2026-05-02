@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import fetchPrivately from "#src/index";
-import Bytes from "#src/bytes";
 import { fetchExposeHeaders } from "#helpers/mocks";
+import Bytes from "#src/bytes";
+import fetchPrivately from "#src/index";
 
 test("fetches a resource that does NOT have any exposed headers", async () => {
   const f = fetchPrivately({ fetch: fetchExposeHeaders() });

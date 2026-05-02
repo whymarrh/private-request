@@ -1,15 +1,14 @@
-import type { IntegrityHashAlgo, HashFunction, IntegrityHashFunctions } from "#src/crypto";
+import bytes from "#src/bytes";
+import type { HashFunction, IntegrityHashAlgo, IntegrityHashFunctions } from "#src/crypto";
 import type {
+  ByteContentRange,
+  InitialResponseSegment,
+  PossibleResponseSegment,
   RequestRange,
   ResponseSegment,
-  InitialResponseSegment,
   Unusable,
   UsableOrUnusable,
-  PossibleResponseSegment,
-  ByteContentRange,
 } from "#src/responses";
-
-import Bytes from "#src/bytes";
 
 type FetchImplementation = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
@@ -19,7 +18,7 @@ function isDefined<T>(val: T): val is NonNullable<T> {
   return val !== undefined && val !== null;
 }
 
-function assert(condition: any, msg: string): asserts condition {
+function assert(condition: unknown, msg: string): asserts condition {
   if (!condition) {
     throw new Error(msg);
   }
@@ -35,7 +34,7 @@ function assertIsNonNullable<T>(val: T): asserts val is NonNullable<T> {
  * Asserts that the given value is a non-empty string.
  * @param val - the value to check
  */
-function assertIsNonEmptyString(val: any): asserts val is string {
+function assertIsNonEmptyString(val: unknown): asserts val is string {
   if (typeof val !== "string" || val.trim().length === 0) {
     throw new TypeError(`Expected non-empty string, but received '${val}'`);
   }
@@ -111,7 +110,7 @@ export async function fetchInitialSegment(
   input: RequestInfo,
   rand: RandomNumberGenerator,
 ): Promise<PossibleResponseSegment<InitialResponseSegment>> {
-  const segmentLength = Bytes.kibiBytes(1) + (await rand(0, Bytes.kibiBytes(1)));
+  const segmentLength = bytes.kibiBytes(1) + (await rand(0, bytes.kibiBytes(1)));
   const s = await fetchSegment(fetch, input, {
     start: 0,
     end: segmentLength - 1,
@@ -188,11 +187,11 @@ export function getRedundantByteCount(contentLength: number, segmentSize: number
  */
 export function getSegmentSize(contentLength: number): number {
   const availableSegmentSizes = [
-    Bytes.mebiBytes(1),
-    Bytes.kibiBytes(500),
-    Bytes.kibiBytes(100),
-    Bytes.kibiBytes(50),
-    Bytes.kibiBytes(10),
+    bytes.mebiBytes(1),
+    bytes.kibiBytes(500),
+    bytes.kibiBytes(100),
+    bytes.kibiBytes(50),
+    bytes.kibiBytes(10),
   ];
 
   for (const segmentSize of availableSegmentSizes) {
