@@ -15,8 +15,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Run tests
         run: |
-          yarn
-          yarn build:data
-          yarn start:server
-          yarn test
-          yarn stop:server
+          corepack enable pnpm
+          pnpm run build:data
+          pnpm run start:server
+          pnpm run test
+          pnpm run stop:server

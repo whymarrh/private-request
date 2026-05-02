@@ -7,6 +7,7 @@
   "engines": {
     "node": ">=22"
   },
+  "packageManager": "pnpm@11.0.3+sha512.10448f2988933787c6699aef683174c741f6472ad91b7e3c8fe3e2bda57be8a0f7caf58949b8bc22e624578b3dc6e57876ba4c631928a1b84cc141e12c79bccd",
   "license": "ISC",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -22,13 +23,13 @@
     "src/*.map"
   ],
   "scripts": {
-    "prepublishOnly": "yarn build:clean",
+    "prepublishOnly": "pnpm run build:clean",
     "build": "tsc --project .",
     "build:e2e": "tools/esbuild-v0.27.1 && tools/esbuild src/index.ts --bundle --format=iife --global-name=privateRequest --outfile=tests/e2e/scripts/private-request.js",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && tests/unit/runner",
-    "test:wpt": "yarn build:e2e && playwright test --config tests/wpt/playwright.config.ts",
+    "test:wpt": "pnpm run build:e2e && playwright test --config tests/wpt/playwright.config.ts",
     "start:server": "cd tests/ && caddy start",
     "stop:server": "cd tests/ && caddy stop",
     "curl:headers": "curl --silent --dump-header /dev/fd/1 --output /dev/null",

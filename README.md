@@ -87,7 +87,7 @@ This comes at the cost of multiple extra network calls and bytes on the wire—a
 To install and use the package:
 
 ```bash
-$ yarn add private-request pure-random-number
+$ pnpm add private-request pure-random-number
 ```
 
 ```js
@@ -104,10 +104,11 @@ const fetch = pr({ rng });
 To run the test suite locally:
 
 ```bash
-$ yarn
-$ yarn build:data
-$ yarn start:server
-$ yarn test
+$ pnpm install
+$ pnpm run build:data
+$ pnpm run start:server
+$ pnpm run test
+$ pnpm run stop:server
 ```
 
 To run the e2e tests, visit `localhost:8001` in a browser.

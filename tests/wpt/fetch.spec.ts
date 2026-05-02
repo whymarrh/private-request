@@ -37,7 +37,7 @@ type WptMessage =
 
 function getLibrarySource(): string {
   if (!fs.existsSync(BUNDLE_PATH)) {
-    throw new Error(`Library bundle not found at ${BUNDLE_PATH}. Run: yarn build:e2e`);
+    throw new Error(`Library bundle not found at ${BUNDLE_PATH}. Run: pnpm run build:e2e`);
   }
 
   return fs.readFileSync(BUNDLE_PATH, "utf-8");
