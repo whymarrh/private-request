@@ -5,7 +5,7 @@ set -E
 set -u
 set -o pipefail
 
-declare -r version="2.4.3"
+declare -r version="2.11.2"
 
 cd "$(mktemp -d)"
 curl -sSL \
