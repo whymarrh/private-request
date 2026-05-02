@@ -25,7 +25,7 @@
   "scripts": {
     "prepublishOnly": "pnpm run build:clean",
     "build": "tsc --project .",
-    "build:e2e": "tools/esbuild-v0.27.1 && tools/esbuild src/index.ts --bundle --format=iife --global-name=privateRequest --outfile=tests/e2e/scripts/private-request.js",
+    "build:e2e": "esbuild src/index.ts --bundle --format=iife --global-name=privateRequest --outfile=tests/e2e/scripts/private-request.js",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
     "test": "tsc --project . && node --test 'tests/unit/*.js'",
@@ -40,6 +40,7 @@
     "@biomejs/biome": "2.4.13",
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.12.2",
+    "esbuild": "^0.28.0",
     "node-fetch": "^2.6.1",
     "typescript": "^5.0.0"
   }
