@@ -6,3 +6,5 @@ updates:
     schedule:
       interval: "monthly"
     labels: [ ]
+    cooldown:
+      default-days: 7
