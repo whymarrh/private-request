@@ -1,10 +1,8 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import Bytes from "#src/bytes";
 import { getRedundantByteCount, getSegmentRanges, getSegmentSize } from "#src/impl";
-import { filename, run } from "#helpers/index";
 
-const test = baretest(filename(import.meta.url));
 const tests: [number, number][] = [
   [Bytes.kibiBytes(1), Bytes.kibiBytes(1)],
   [Bytes.kibiBytes(128), Bytes.kibiBytes(100)],
@@ -171,5 +169,3 @@ test("segments a 2M resource into two 1M requests starting at 1K - 1", async () 
     },
   ]);
 });
-
-await run(test);

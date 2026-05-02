@@ -1,13 +1,8 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import fetchPrivately from "#src/index";
 import Bytes from "#src/bytes";
-import { filename, run, setupGlobals } from "#helpers/index";
 import { fetchExposeHeaders } from "#helpers/mocks";
-
-const test = baretest(filename(import.meta.url));
-
-setupGlobals(test);
 
 test("fetches a resource that does NOT have any exposed headers", async () => {
   const f = fetchPrivately({ fetch: fetchExposeHeaders() });
@@ -18,5 +13,3 @@ test("fetches a resource that does NOT have any exposed headers", async () => {
   assert.equal(r.status, 200);
   assert.equal(r.headers.get("Content-Length"), Bytes.mebiBytes(2).toString(10));
 });
-
-await run(test);

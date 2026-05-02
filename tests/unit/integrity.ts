@@ -1,13 +1,9 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import fetch from "node-fetch";
 import fetchPrivately from "#src/index";
 import { digest, parseIntegrity } from "#src/impl";
-import { filename, run, setupGlobals, sha256, sha384, sha512 } from "#helpers/index";
-
-const test = baretest(filename(import.meta.url));
-
-setupGlobals(test);
+import { sha256, sha384, sha512 } from "#helpers/index";
 
 test("throws on non-string and empty values", async () => {
   assert.throws(() => parseIntegrity(""));
@@ -90,5 +86,3 @@ test("fetches words.dat with the correct integrity hash", async () => {
   assert.equal(r.status, 200);
   assert.equal(r.headers.get("Content-Length"), "3539061");
 });
-
-await run(test);

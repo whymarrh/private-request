@@ -1,12 +1,10 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import fetch from "node-fetch";
 import Bytes from "#src/bytes";
 import { fetchInitialSegment } from "#src/impl";
-import { assertType, filename, run } from "#helpers/index";
+import { assertType } from "#helpers/index";
 import { fetchExposeHeaders } from "#helpers/mocks";
-
-const test = baretest(filename(import.meta.url));
 
 const getRandomNumber = async (_: number, __: number) => 42;
 
@@ -37,5 +35,3 @@ test("fetches the full resource when range requests are NOT allowed", async () =
   assert.equal(res.status, 200);
   assert.equal(res.headers.get("Content-Length"), Bytes.mebiBytes(1).toString(10));
 });
-
-await run(test);

@@ -1,9 +1,6 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import { parseByteContentRange } from "#src/impl";
-import { filename, run } from "#helpers/index";
-
-const test = baretest(filename(import.meta.url));
 
 test("throws on non-string values", async () => {
   // @ts-expect-error
@@ -75,5 +72,3 @@ test("handles non-bytes Content-Range header value `foo 0-22/42`", async () => {
   const res = parseByteContentRange("foo 0-22/42");
   assert.deepEqual(res, undefined);
 });
-
-await run(test);

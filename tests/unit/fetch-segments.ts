@@ -1,11 +1,9 @@
-import { strict as assert } from "assert";
-import baretest from "baretest";
+import { strict as assert } from "node:assert";
+import test from "node:test";
 import fetch from "node-fetch";
 import Bytes from "#src/bytes";
 import { fetchSegments } from "#src/impl";
-import { assertType, filename, run } from "#helpers/index";
-
-const test = baretest(filename(import.meta.url));
+import { assertType } from "#helpers/index";
 
 const getRandomNumber = async (_: number, __: number) => 0;
 
@@ -54,5 +52,3 @@ test("fetches all segments for a 32 byte resource when range requests are allowe
     ],
   );
 });
-
-await run(test);

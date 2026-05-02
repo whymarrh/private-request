@@ -28,7 +28,7 @@
     "build:e2e": "tools/esbuild-v0.27.1 && tools/esbuild src/index.ts --bundle --format=iife --global-name=privateRequest --outfile=tests/e2e/scripts/private-request.js",
     "build:clean": "test -f tsconfig.tsbuildinfo && rm tsconfig.tsbuildinfo; tsc --project .",
     "build:data": "cd tests/fixtures/ && ./mkdat",
-    "test": "tsc --project . && tests/unit/runner",
+    "test": "tsc --project . && node --test 'tests/unit/*.js'",
     "test:wpt": "pnpm run build:e2e && playwright test --config tests/wpt/playwright.config.ts",
     "start:server": "cd tests/ && caddy start",
     "stop:server": "cd tests/ && caddy stop",
@@ -39,8 +39,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
     "@playwright/test": "^1.57.0",
-    "@types/node": "^22.0.0",
-    "baretest": "^2.0.0",
+    "@types/node": "^24.12.2",
     "node-fetch": "^2.6.1",
     "typescript": "^5.0.0"
   }
