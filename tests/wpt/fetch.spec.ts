@@ -1,19 +1,10 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 import { WPT_FETCH_TESTS } from "./config.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const BUNDLE_PATH = path.resolve(__dirname, "../e2e/scripts/private-request.js");
+const BUNDLE_PATH = new URL("../e2e/scripts/private-request.js", import.meta.url);
 const TEST_TIMEOUT_MS = 60_000;
-
-if (!fs.existsSync(BUNDLE_PATH)) {
-  throw new Error(`Library bundle not found at ${BUNDLE_PATH}. Run: pnpm run build:e2e`);
-}
-
 const LIBRARY_SOURCE = fs.readFileSync(BUNDLE_PATH, "utf-8");
 
 const WebPlatformTestStatusCode = {
@@ -59,8 +50,7 @@ async function runWptTests(
   testPath: string,
   fn?: (page: Page) => Promise<void>,
 ): Promise<{ tests: WebPlatformTest[]; status: WebPlatformTestStatus }> {
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const page = await browser.newPage();
 
   const { promise, resolve } = Promise.withResolvers<{ tests: WebPlatformTest[]; status: WebPlatformTestStatus }>();
 
