@@ -95,57 +95,53 @@ test.describe("Web Platform Tests", () => {
     const fullUrl = `https://wpt.live/fetch/${testPath}`;
     const tags = getTagsFromPath(testPath);
 
-    test(
-      testPath.replace(/\.html$/, ""),
-      {
-        tag: tags,
-        annotation: { type: "wpt", description: fullUrl },
-      },
-      async ({ browser }: { browser: Browser }) => {
-        test.setTimeout(TEST_TIMEOUT_MS);
-        test.slow(typeof t === "object" && t.slow);
+    test(testPath.replace(/\.html$/, ""), {
+      tag: tags,
+      annotation: { type: "wpt", description: fullUrl },
+    }, async ({ browser }: { browser: Browser }) => {
+      test.setTimeout(TEST_TIMEOUT_MS);
+      test.slow(typeof t === "object" && t.slow);
 
-        const originalResults = await test.step("Collect built-in fetch baseline results", async (step) => {
-          const originalResults = await runWptTests(browser, testPath);
-          expect(originalResults.tests.length).toBeGreaterThan(0);
-          const originalResultsMap = new Map<string, number>();
-          for (const result of originalResults.tests) {
-            originalResultsMap.set(result.name, result.status);
-          }
-          await step.attach("baseline-results.json", {
-            body: JSON.stringify(originalResults, null, 2),
+      const originalResults = await test.step("Collect built-in fetch baseline results", async (step) => {
+        const originalResults = await runWptTests(browser, testPath);
+        expect(originalResults.tests.length).toBeGreaterThan(0);
+        const originalResultsMap = new Map<string, number>();
+        for (const result of originalResults.tests) {
+          originalResultsMap.set(result.name, result.status);
+        }
+        await step.attach("baseline-results.json", {
+          body: JSON.stringify(originalResults, null, 2),
+          contentType: "application/json",
+        });
+        return originalResultsMap;
+      });
+
+      const wrappedResults = await runWptTests(browser, testPath, async (page) => {
+        await injectLibrary(page);
+      });
+      expect(wrappedResults.tests.length).toBe(originalResults.size);
+
+      for (const result of wrappedResults.tests) {
+        await test.step(result.name, async (step) => {
+          await step.attach(`result-${result.name.replace(/ /g, "-").replace(/[^a-zA-Z0-9-]/g, "")}.json`, {
+            body: JSON.stringify(result, null, 2),
             contentType: "application/json",
           });
-          return originalResultsMap;
-        });
-
-        const wrappedResults = await runWptTests(browser, testPath, async (page) => {
-          await injectLibrary(page);
-        });
-        expect(wrappedResults.tests.length).toBe(originalResults.size);
-
-        for (const result of wrappedResults.tests) {
-          await test.step(result.name, async (step) => {
-            await step.attach(`result-${result.name.replace(/ /g, "-").replace(/[^a-zA-Z0-9-]/g, "")}.json`, {
-              body: JSON.stringify(result, null, 2),
-              contentType: "application/json",
-            });
-            if (result.status !== WebPlatformTestStatusCode.PASS) {
-              const originalStatus = originalResults.get(result.name);
-              step.skip(result.status === WebPlatformTestStatusCode.NOT_RUN, "not run");
-              step.skip(
-                originalStatus === WebPlatformTestStatusCode.FAIL ||
-                  originalStatus === WebPlatformTestStatusCode.TIMEOUT ||
-                  originalStatus === WebPlatformTestStatusCode.NOT_RUN,
-                "failed baseline",
-              );
-              if (result.status !== originalStatus) {
-                throw new Error(`'${result.name}' was ${originalStatus} but is ${result.status}`);
-              }
+          if (result.status !== WebPlatformTestStatusCode.PASS) {
+            const originalStatus = originalResults.get(result.name);
+            step.skip(result.status === WebPlatformTestStatusCode.NOT_RUN, "not run");
+            step.skip(
+              originalStatus === WebPlatformTestStatusCode.FAIL ||
+                originalStatus === WebPlatformTestStatusCode.TIMEOUT ||
+                originalStatus === WebPlatformTestStatusCode.NOT_RUN,
+              "failed baseline",
+            );
+            if (result.status !== originalStatus) {
+              throw new Error(`'${result.name}' was ${originalStatus} but is ${result.status}`);
             }
-          });
-        }
-      },
-    );
+          }
+        });
+      }
+    });
   }
 });
