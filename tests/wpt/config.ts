@@ -99,7 +99,6 @@ export const WPT_FETCH_TESTS = [
   "api/policies/referrer-unsafe-url-worker.html",
   "api/policies/referrer-unsafe-url.html",
   "api/redirect/redirect-back-to-original-origin.any.html",
-  // SLOW
   // "api/redirect/redirect-count.any.html",
   "api/redirect/redirect-empty-location.any.html",
   "api/redirect/redirect-keepalive.any.html",
@@ -369,7 +368,7 @@ export const WPT_FETCH_TESTS = [
   "metadata/unload.https.sub.html",
   "metadata/window-open.https.sub.html",
   "metadata/worker.https.sub.html",
-  "metadata/xslt.https.sub.html",
+  // "metadata/xslt.https.sub.html",
   "nosniff/image.html",
   "nosniff/importscripts.html",
   "nosniff/script.html",

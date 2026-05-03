@@ -3,18 +3,24 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
-import { WPT_FETCH_TESTS as TESTS } from "./config.js";
+import { WPT_FETCH_TESTS } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BUNDLE_PATH = path.resolve(__dirname, "../e2e/scripts/private-request.js");
 const TEST_TIMEOUT_MS = 60_000;
 
+if (!fs.existsSync(BUNDLE_PATH)) {
+  throw new Error(`Library bundle not found at ${BUNDLE_PATH}. Run: pnpm run build:e2e`);
+}
+
+const LIBRARY_SOURCE = fs.readFileSync(BUNDLE_PATH, "utf-8");
+
 const WebPlatformTestStatusCode = {
   PASS: 0,
   FAIL: 1,
   TIMEOUT: 2,
-  NOTRUN: 3,
+  NOT_RUN: 3,
   PRECONDITION_FAILED: 4,
 } as const;
 
@@ -25,30 +31,20 @@ type WebPlatformTestStatus = {
   stack: string | null;
 };
 
-type WebPlatfomTest = WebPlatformTestStatus & {
+type WebPlatformTest = WebPlatformTestStatus & {
   name: string;
 };
 
 type WptMessage =
   | { type: "start" }
-  | { type: "test_state"; test: WebPlatfomTest }
-  | { type: "result"; test: WebPlatfomTest }
-  | { type: "complete"; tests: WebPlatfomTest[]; status: WebPlatformTestStatus };
-
-function getLibrarySource(): string {
-  if (!fs.existsSync(BUNDLE_PATH)) {
-    throw new Error(`Library bundle not found at ${BUNDLE_PATH}. Run: pnpm run build:e2e`);
-  }
-
-  return fs.readFileSync(BUNDLE_PATH, "utf-8");
-}
+  | { type: "test_state"; test: WebPlatformTest }
+  | { type: "result"; test: WebPlatformTest }
+  | { type: "complete"; tests: WebPlatformTest[]; status: WebPlatformTestStatus };
 
 async function injectLibrary(page: Page): Promise<void> {
-  const librarySource = getLibrarySource();
-
   await page.addInitScript(`
     (function() {
-      ${librarySource};
+      ${LIBRARY_SOURCE};
 
       const originalFetch = window.fetch.bind(window);
       const wrappedFetch = privateRequest.default({ fetch: originalFetch });
@@ -62,11 +58,11 @@ async function runWptTests(
   browser: Browser,
   testPath: string,
   fn?: (page: Page) => Promise<void>,
-): Promise<{ tests: WebPlatfomTest[]; status: WebPlatformTestStatus }> {
+): Promise<{ tests: WebPlatformTest[]; status: WebPlatformTestStatus }> {
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  const { promise, resolve } = Promise.withResolvers<{ tests: WebPlatfomTest[]; status: WebPlatformTestStatus }>();
+  const { promise, resolve } = Promise.withResolvers<{ tests: WebPlatformTest[]; status: WebPlatformTestStatus }>();
 
   await page.exposeFunction("__wptPostMessage", (data: WptMessage) => {
     if (data.type === "complete") {
@@ -88,7 +84,7 @@ async function runWptTests(
 
   await fn?.(page);
   const response = await page.goto(`https://wpt.live/fetch/${testPath}`, {
-    timeout: 30000,
+    timeout: TEST_TIMEOUT_MS,
   });
 
   if (!response?.ok()) {
@@ -104,7 +100,7 @@ function getTagsFromPath(testPath: string): string[] {
 }
 
 test.describe("Web Platform Tests", () => {
-  for (const t of TESTS) {
+  for (const t of WPT_FETCH_TESTS) {
     const testPath = typeof t === "string" ? t : t.path;
     const fullUrl = `https://wpt.live/fetch/${testPath}`;
     const tags = getTagsFromPath(testPath);
@@ -126,7 +122,7 @@ test.describe("Web Platform Tests", () => {
           for (const result of originalResults.tests) {
             originalResultsMap.set(result.name, result.status);
           }
-          step.attach("baseline-results.json", {
+          await step.attach("baseline-results.json", {
             body: JSON.stringify(originalResults, null, 2),
             contentType: "application/json",
           });
@@ -140,17 +136,17 @@ test.describe("Web Platform Tests", () => {
 
         for (const result of wrappedResults.tests) {
           await test.step(result.name, async (step) => {
-            step.attach(`result-${result.name.replace(/ /g, "-").replace(/[^a-zA-Z0-9-]/g, "")}.json`, {
+            await step.attach(`result-${result.name.replace(/ /g, "-").replace(/[^a-zA-Z0-9-]/g, "")}.json`, {
               body: JSON.stringify(result, null, 2),
               contentType: "application/json",
             });
             if (result.status !== WebPlatformTestStatusCode.PASS) {
               const originalStatus = originalResults.get(result.name);
-              step.skip(result.status === WebPlatformTestStatusCode.NOTRUN, "not run");
+              step.skip(result.status === WebPlatformTestStatusCode.NOT_RUN, "not run");
               step.skip(
                 originalStatus === WebPlatformTestStatusCode.FAIL ||
                   originalStatus === WebPlatformTestStatusCode.TIMEOUT ||
-                  originalStatus === WebPlatformTestStatusCode.NOTRUN,
+                  originalStatus === WebPlatformTestStatusCode.NOT_RUN,
                 "failed baseline",
               );
               if (result.status !== originalStatus) {

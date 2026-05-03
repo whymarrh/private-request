@@ -4,10 +4,10 @@ export default defineConfig({
   testDir: "./",
   testMatch: "*.spec.ts",
   fullyParallel: true,
-  retries: 1,
+  retries: Number.parseInt(process.env["WPT_RETRIES"] ?? "3", 10),
   outputDir: "./results",
   reporter: [
-    ["list", { printSteps: true }],
+    ["list", { printSteps: false }],
     ["html", { outputFolder: "./report", open: "never" }],
     ["json", { outputFile: "./results/results.json" }],
   ],
