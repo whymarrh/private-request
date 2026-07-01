@@ -39,7 +39,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
     "@playwright/test": "^1.57.0",
-    "@types/node": "^24.12.2",
+    "@types/node": "^26.0.0",
     "esbuild": "^0.28.0",
     "node-fetch": "^2.6.1",
     "typescript": "^5.0.0"
